@@ -4,10 +4,11 @@ use super::*;
 pub struct Client {
     pub device: Device,
     pub command_queue: Queue,
+    pub dst_img_size: (u32, u32),
 }
 
 impl Client {
-    pub async fn new() -> Self {
+    pub async fn new(dst_img_size: (u32, u32)) -> Self {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
 
         let (device, command_queue) = {
@@ -18,6 +19,7 @@ impl Client {
         Self {
             device,
             command_queue,
+            dst_img_size,
         }
     }
 }

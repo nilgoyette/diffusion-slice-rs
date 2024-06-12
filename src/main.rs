@@ -1,7 +1,10 @@
 mod graphics;
 
 fn main() {
-    let _ctx = pollster::block_on(graphics::Context::new());
+    let size = (800, 600); // TODO: Make this parameterable
+    let ctx = pollster::block_on(graphics::Context::new(size));
+
+    // ctx.output_image();
 
     #[cfg(debug_assertions)]
     init_logger();
