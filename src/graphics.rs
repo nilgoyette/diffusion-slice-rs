@@ -16,7 +16,7 @@ const MULTISAMPLE_COUNT: u32 = 4;
 
 pub struct UserInputs {
     pub dst_img_size: (u32, u32),
-    pub dst_img_path: std::path::PathBuf,
+    pub dst_img_path: PathBuf,
 }
 
 pub struct Context {

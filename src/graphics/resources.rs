@@ -7,17 +7,17 @@ mod buffer;
 mod texture;
 
 pub struct Resources {
-    pub dst_texture: Texture,
+    pub target_texture: Texture,
     pub transfer_buffer: ImageTransferBuffer,
 }
 
 impl Resources {
     pub fn new(client: &Client) -> Self {
-        let dst_texture = Texture::new_dst(client);
+        let target_texture = Texture::new_target(client);
 
         Self {
-            transfer_buffer: ImageTransferBuffer::new(&dst_texture, client),
-            dst_texture,
+            transfer_buffer: ImageTransferBuffer::new(&target_texture, client),
+            target_texture,
         }
     }
 }

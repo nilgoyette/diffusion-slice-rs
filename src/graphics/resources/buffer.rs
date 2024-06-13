@@ -29,15 +29,18 @@ impl ImageTransferBuffer {
 
 fn texture_bytes_size(texture: &Texture) -> (u32, u32) {
     // Always returns `Some(u32)` when using `Rgba8Unorm`
-    let block_size = texture.format.block_copy_size(None).unwrap();
+    let block_size = texture
+        .format
+        .block_copy_size(None)
+        .expect("Bad texture format");
 
-    // `bytes_per_row` must be padded to a multiple of 256
+    // `bytes_per_row` must be aligned to 256
     (
-        padded_bytes_size(block_size * texture.size.width, 256),
+        pad_size(block_size * texture.size.width, 256),
         texture.size.height,
     )
 }
 
-fn padded_bytes_size(size: u32, alignment: u32) -> u32 {
+fn pad_size(size: u32, alignment: u32) -> u32 {
     ((size + alignment - 1) / alignment) * alignment
 }

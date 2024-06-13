@@ -19,7 +19,7 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn new_dst(client: &Client) -> Self {
+    pub fn new_target(client: &Client) -> Self {
         let size = extent(client.img_size);
         let format = TextureFormat::Rgba8Unorm;
 
