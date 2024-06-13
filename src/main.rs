@@ -1,13 +1,17 @@
 mod graphics;
 
 fn main() {
-    let size = (800, 600); // TODO: Make this parameterable
-    let ctx = pollster::block_on(graphics::Context::new(size));
-
-    // ctx.output_image();
-
     #[cfg(debug_assertions)]
     init_logger();
+
+    // TODO: Make this parameterable
+    //       Validate user inputs
+    let inputs = graphics::UserInputs {
+        dst_img_size: (800, 600),
+        dst_img_path: std::path::PathBuf::from("output.png"),
+    };
+    let ctx = pollster::block_on(graphics::Context::new(inputs));
+    ctx.execute_workloads();
 }
 
 fn init_logger() {
