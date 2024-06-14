@@ -9,7 +9,7 @@ pub struct Client {
 }
 
 impl Client {
-    pub async fn new(inputs: UserInputs) -> Self {
+    pub async fn new(inputs: &UserInputs) -> Self {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
 
         let (device, command_queue) = {
@@ -20,7 +20,7 @@ impl Client {
             device,
             command_queue,
             img_size: inputs.dst_img_size,
-            output_path: inputs.dst_img_path,
+            output_path: inputs.dst_img_path.clone(),
         }
     }
 }

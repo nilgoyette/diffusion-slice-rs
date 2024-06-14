@@ -9,7 +9,6 @@ impl Context {
     pub fn execute_workloads(&self) {
         let mut command_encoder = self.command_encoder();
 
-        // TODO self.send_source_image()
         // TODO self.resample_source_image()
         // TODO self.render_lines()
         // TODO self.post_process()
