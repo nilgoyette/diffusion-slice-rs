@@ -3,7 +3,7 @@ use image::{ImageBuffer, RgbaImage};
 use super::*;
 
 impl Context {
-    pub(super) fn save_image<'a>(&self, bytes: Vec<u8>) {
+    pub(super) fn save_image(&self, bytes: Vec<u8>) {
         let (width, height) = self.client.img_size;
 
         let img: RgbaImage = ImageBuffer::from_raw(width, height, bytes)

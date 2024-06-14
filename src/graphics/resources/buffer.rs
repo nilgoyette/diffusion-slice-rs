@@ -10,7 +10,7 @@ pub struct ImageTransferBuffer {
 
 impl ImageTransferBuffer {
     pub fn new(texture: &Texture, client: &Client) -> Self {
-        let (bytes_per_row, row_count) = texture_bytes_size(&texture);
+        let (bytes_per_row, row_count) = texture_bytes_size(texture);
 
         let buffer = client.device.create_buffer(&wgpu::BufferDescriptor {
             label: label!("ImageTransferBuffer"),

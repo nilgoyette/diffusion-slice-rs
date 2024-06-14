@@ -1,7 +1,7 @@
 use super::*;
 
 impl Context {
-    pub(super) fn copy_target_to_buffer<'a>(&self, command_encoder: &'a mut CommandEncoder) {
+    pub(super) fn copy_target_to_buffer(&self, command_encoder: &mut CommandEncoder) {
         let transfer_buffer = &self.res.transfer_buffer;
 
         let copy_texture = wgpu::ImageCopyTexture {
@@ -25,7 +25,7 @@ impl Context {
         );
     }
 
-    pub(super) fn receive_image_bytes<'a>(&self) -> Vec<u8> {
+    pub(super) fn receive_image_bytes(&self) -> Vec<u8> {
         let buffer = &self.res.transfer_buffer.inner;
         let data = buffer.slice(..);
 
