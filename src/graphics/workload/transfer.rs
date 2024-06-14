@@ -32,7 +32,7 @@ impl Context {
         // TODO handle the error in the main thread
         data.map_async(wgpu::MapMode::Read, |result| result.unwrap());
 
-        self.client.device.poll(wgpu::Maintain::Wait);
+        self.client.device.poll(wgpu::Maintain::Wait); // Synchronization
 
         let bytes: Vec<u8> = data.get_mapped_range().to_vec();
         buffer.unmap();

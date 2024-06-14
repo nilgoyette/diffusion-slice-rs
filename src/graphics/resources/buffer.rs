@@ -13,7 +13,7 @@ impl ImageTransferBuffer {
         let (bytes_per_row, row_count) = texture_bytes_size(&texture);
 
         let buffer = client.device.create_buffer(&wgpu::BufferDescriptor {
-            label: label!("StagingBuffer"),
+            label: label!("ImageTransferBuffer"),
             size: bytes_per_row as u64 * row_count as u64,
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
             mapped_at_creation: false,
@@ -41,6 +41,6 @@ fn texture_bytes_size(texture: &Texture) -> (u32, u32) {
     )
 }
 
-fn pad_size(size: u32, alignment: u32) -> u32 {
-    ((size + alignment - 1) / alignment) * alignment
+fn pad_size(size: u32, align: u32) -> u32 {
+    ((size + align - 1) / align) * align
 }

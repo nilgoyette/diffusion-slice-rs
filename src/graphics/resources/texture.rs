@@ -1,5 +1,4 @@
-use wgpu::TextureUsages;
-pub use wgpu::{Extent3d, TextureFormat};
+use wgpu::{Extent3d, TextureFormat, TextureUsages};
 
 use super::*;
 
