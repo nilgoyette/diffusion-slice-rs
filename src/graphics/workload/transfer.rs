@@ -19,8 +19,9 @@ impl Context {
         let buffer = &self.res.transfer_buffer;
         let data = buffer.slice(..);
 
-        // TODO handle the error in the main thread
-        data.map_async(wgpu::MapMode::Read, |result| result.unwrap());
+        data.map_async(wgpu::MapMode::Read, |result| {
+            result.expect("Failed to map buffer")
+        });
 
         self.client.device.poll(wgpu::Maintain::Wait); // Synchronization
 
