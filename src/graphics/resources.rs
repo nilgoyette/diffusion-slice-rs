@@ -1,6 +1,6 @@
 use wgpu::Buffer;
 
-use super::*;
+use super::{Client, Image};
 
 pub use texture::*;
 

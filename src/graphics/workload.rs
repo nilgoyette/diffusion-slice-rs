@@ -1,6 +1,6 @@
 use wgpu::CommandEncoder;
 
-use super::*;
+use super::Context;
 
 mod save;
 mod transfer;

@@ -1,3 +1,5 @@
+use wgpu::{Buffer, Device};
+
 use super::*;
 
 pub fn create_image_transfer_buffer(texture: &Texture, device: &Device) -> Buffer {

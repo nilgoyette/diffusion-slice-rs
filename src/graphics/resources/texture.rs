@@ -1,6 +1,6 @@
-use wgpu::{Extent3d, ImageCopyTexture, ImageDataLayout, TextureFormat, TextureUsages};
+use wgpu::{Extent3d, ImageCopyTexture, ImageDataLayout, Queue, TextureFormat, TextureUsages};
 
-use super::*;
+use crate::graphics::{Client, Image, MULTISAMPLE_COUNT};
 
 struct TextureConfig {
     name: String,

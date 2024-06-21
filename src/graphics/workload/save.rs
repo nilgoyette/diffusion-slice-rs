@@ -1,4 +1,4 @@
-use super::*;
+use crate::graphics::{Context, Image};
 
 impl Context {
     pub(super) fn save_image(&self, bytes: Vec<u8>) {
