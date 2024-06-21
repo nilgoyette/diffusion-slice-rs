@@ -63,15 +63,10 @@ impl Texture {
     }
 
     fn send_image(&self, image: &Image, command_queue: &Queue) {
-        command_queue.write_texture(
-            self.image_copy(),
-            &image,
-            self.data_layout(false),
-            self.size,
-        );
+        command_queue.write_texture(self.image_copy(), image, self.data_layout(false), self.size);
     }
 
-    pub fn image_copy<'a>(&'a self) -> ImageCopyTexture<'a> {
+    pub fn image_copy(&self) -> ImageCopyTexture {
         ImageCopyTexture {
             texture: &self.inner,
             mip_level: 0,
