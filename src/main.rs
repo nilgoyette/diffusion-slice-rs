@@ -9,7 +9,12 @@ fn main() {
 
     // TODO Make this parameterable
     // TODO Validate user inputs
+    let image = image::load_from_memory(include_bytes!("../sunshine.jpg"))
+        .unwrap()
+        .into_rgba8();
+
     let inputs = graphics::UserInputs {
+        src_img: image,
         dst_img_size: (800, 600),
         dst_img_path: PathBuf::from("output.png"),
     };
