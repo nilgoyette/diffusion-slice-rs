@@ -104,7 +104,7 @@ fn view(texture: &wgpu::Texture) -> wgpu::TextureView {
     texture.create_view(&wgpu::TextureViewDescriptor::default())
 }
 
-/// Returns the number of bytes per row and the required padding
+/// Returns the number of bytes per row and the padding width
 fn bytes_layout(cfg: &TextureConfig) -> (u32, u32) {
     // Always returns `Some(u32)` when using `Rgba8Unorm`
     let block_size = cfg
@@ -112,14 +112,14 @@ fn bytes_layout(cfg: &TextureConfig) -> (u32, u32) {
         .block_copy_size(None)
         .expect("Bad texture format");
 
-    let bytes_size = block_size * cfg.size.width;
+    let width = block_size * cfg.size.width;
 
     match cfg.pad_bytes_per_row {
         true => {
-            let padded_size = pad_size(bytes_size, wgpu::COPY_BYTES_PER_ROW_ALIGNMENT);
-            (padded_size, padded_size - bytes_size)
+            let stride = pad_size(width, wgpu::COPY_BYTES_PER_ROW_ALIGNMENT);
+            (stride, stride - width)
         }
-        false => (bytes_size, 0),
+        false => (width, 0),
     }
 }
 
