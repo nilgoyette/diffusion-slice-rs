@@ -6,7 +6,7 @@ impl Context {
 
         let copy_buffer = wgpu::ImageCopyBuffer {
             buffer: &self.res.transfer_buffer,
-            layout: texture.data_layout(true),
+            layout: texture.data_layout(),
         };
         command_encoder.copy_texture_to_buffer(
             texture.image_copy(),
@@ -22,12 +22,14 @@ impl Context {
         data.map_async(wgpu::MapMode::Read, |result| {
             result.expect("Failed to map buffer")
         });
-
         self.client.device.poll(wgpu::Maintain::Wait); // Synchronization
 
-        let bytes: Vec<u8> = data.get_mapped_range().to_vec();
-        buffer.unmap();
+        let texture = &self.res.target_texture;
+        let bytes_width = (texture.bytes_stride - texture.bytes_padding) as usize;
 
-        bytes
+        data.get_mapped_range()
+            .chunks(texture.bytes_stride as usize)
+            .flat_map(|chunk| chunk[..bytes_width].iter().copied())
+            .collect()
     }
 }
