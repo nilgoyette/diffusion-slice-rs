@@ -3,12 +3,14 @@ use std::path::Path;
 use crate::Image;
 
 pub fn load_image(input_path: &Path) -> Image {
-    image::open(input_path)
-        .expect(&format!("Load the image from {:?}", input_path))
-        .into_rgba8()
+    match image::open(input_path) {
+        Ok(image) => image.into_rgba8(),
+        Err(error) => panic!("Image at {input_path:?} could not be loaded: {error}"),
+    }
 }
 
 pub fn save_image(img: Image, output_path: &Path) {
-    img.save(output_path)
-        .expect("Save the image to {output_path}");
+    if let Err(error) = img.save(output_path) {
+        panic!("Failed to save the image at {output_path:?}: {error}");
+    }
 }

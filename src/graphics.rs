@@ -29,5 +29,5 @@ impl Context {
 }
 
 pub fn run_full_pipeline(inputs: &UserInputs) -> Image {
-    pollster::block_on(Context::new(&inputs)).execute_workloads()
+    pollster::block_on(Context::new(inputs)).execute_workloads()
 }

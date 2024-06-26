@@ -16,7 +16,7 @@ impl Client {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let adapter = adapter(&instance).await;
 
-        let (device, command_queue) = { device(&adapter).await };
+        let (device, command_queue) = device(&adapter).await;
 
         Self {
             device,
