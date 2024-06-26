@@ -2,6 +2,7 @@ use wgpu::CommandEncoder;
 
 use super::Context;
 
+mod render;
 mod save;
 mod transfer;
 
@@ -9,9 +10,7 @@ impl Context {
     pub fn execute_workloads(&self) {
         let mut command_encoder = self.command_encoder();
 
-        // TODO self.resample_source_image()
-        // TODO self.render_lines()
-        // TODO self.post_process()
+        self.render(&mut command_encoder);
         self.copy_target_to_buffer(&mut command_encoder);
 
         self.client.command_queue.submit([command_encoder.finish()]);
@@ -19,7 +18,7 @@ impl Context {
         self.save_image(self.receive_image_bytes());
     }
 
-    fn command_encoder(&self) -> wgpu::CommandEncoder {
+    fn command_encoder(&self) -> CommandEncoder {
         self.client
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {

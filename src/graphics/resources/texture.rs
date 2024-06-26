@@ -19,19 +19,23 @@ pub struct Texture {
     pub format: TextureFormat,
     pub size: Extent3d,
 
-    pub bytes_per_row: u32,
+    pub bytes_stride: u32,
+    pub bytes_padding: u32,
 }
 
 impl Texture {
     fn new(cfg: TextureConfig, client: &Client) -> Self {
         let texture = client.create_texture(&cfg);
+        let (bytes_stride, bytes_padding) = bytes_layout(&cfg);
 
         Self {
             view: view(&texture),
             inner: texture,
             format: cfg.format,
             size: cfg.size,
-            bytes_per_row: bytes_per_row(&cfg),
+
+            bytes_stride,
+            bytes_padding,
         }
     }
 
@@ -50,6 +54,18 @@ impl Texture {
         texture
     }
 
+    pub fn new_multisampled(client: &Client) -> Self {
+        let cfg = TextureConfig {
+            name: "MultisampledTexture".to_string(),
+            usage: TextureUsages::RENDER_ATTACHMENT,
+            format: TextureFormat::Rgba8Unorm,
+            size: extent(client.img_size),
+            multisampled: true,
+            pad_bytes_per_row: false,
+        };
+        Self::new(cfg, client)
+    }
+
     pub fn new_target(client: &Client) -> Self {
         let cfg = TextureConfig {
             name: "TargetTexture".to_string(),
@@ -63,7 +79,7 @@ impl Texture {
     }
 
     fn send_image(&self, image: &Image, command_queue: &Queue) {
-        command_queue.write_texture(self.image_copy(), image, self.data_layout(false), self.size);
+        command_queue.write_texture(self.image_copy(), image, self.data_layout(), self.size);
     }
 
     pub fn image_copy(&self) -> ImageCopyTexture {
@@ -75,16 +91,11 @@ impl Texture {
         }
     }
 
-    pub fn data_layout(&self, padded: bool) -> ImageDataLayout {
-        let mut bytes_size = self.bytes_per_row;
-
-        if padded {
-            bytes_size = pad_size(self.bytes_per_row, 256);
-        }
+    pub fn data_layout(&self) -> ImageDataLayout {
         ImageDataLayout {
             offset: 0,
-            bytes_per_row: Some(bytes_size),
-            rows_per_image: Some(self.size.height),
+            bytes_per_row: Some(self.bytes_stride),
+            rows_per_image: None,
         }
     }
 }
@@ -93,18 +104,21 @@ fn view(texture: &wgpu::Texture) -> wgpu::TextureView {
     texture.create_view(&wgpu::TextureViewDescriptor::default())
 }
 
-fn bytes_per_row(cfg: &TextureConfig) -> u32 {
+/// Returns the number of bytes per row and the padding width
+fn bytes_layout(cfg: &TextureConfig) -> (u32, u32) {
     // Always returns `Some(u32)` when using `Rgba8Unorm`
     let block_size = cfg
         .format
         .block_copy_size(None)
         .expect("Bad texture format");
 
-    let bytes_size = block_size * cfg.size.width;
+    let width = block_size * cfg.size.width;
 
-    match cfg.pad_bytes_per_row {
-        true => pad_size(bytes_size, 256),
-        false => bytes_size,
+    if cfg.pad_bytes_per_row {
+        let stride = pad_size(width, wgpu::COPY_BYTES_PER_ROW_ALIGNMENT);
+        (stride, stride - width)
+    } else {
+        (width, 0)
     }
 }
 
@@ -123,9 +137,10 @@ fn pad_size(size: u32, align: u32) -> u32 {
 
 impl Client {
     fn create_texture(&self, cfg: &TextureConfig) -> wgpu::Texture {
-        let sample_count = match cfg.multisampled {
-            true => MULTISAMPLE_COUNT,
-            false => 1,
+        let sample_count = if cfg.multisampled {
+            MULTISAMPLE_COUNT
+        } else {
+            1
         };
         self.device.create_texture(&wgpu::TextureDescriptor {
             label: label!("{:?}Texture", cfg.name),

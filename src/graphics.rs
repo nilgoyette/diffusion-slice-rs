@@ -1,14 +1,12 @@
 use std::path::PathBuf;
 
-use wgpu::{Device, Queue};
-
-use client::Client;
-use resources::*;
+use {client::Client, pipeline::Pipelines, resources::Resources};
 
 #[macro_use]
 mod macros;
 
 mod client;
+mod pipeline;
 mod resources;
 mod workload;
 
@@ -25,14 +23,17 @@ pub struct UserInputs {
 pub struct Context {
     client: Client,
     res: Resources,
+    pipelines: Pipelines,
 }
 
 impl Context {
     pub async fn new(inputs: UserInputs) -> Self {
         let client = Client::new(&inputs).await;
+        let res = Resources::new(&inputs.src_img, &client);
 
         Self {
-            res: Resources::new(&inputs.src_img, &client),
+            pipelines: Pipelines::new(&res, &client.device),
+            res,
             client,
         }
     }

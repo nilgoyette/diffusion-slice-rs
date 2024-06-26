@@ -1,4 +1,8 @@
-use super::*;
+use std::path::PathBuf;
+
+use wgpu::{Device, Queue};
+
+use super::UserInputs;
 
 /// Stores handlers related to the user environment
 pub struct Client {
