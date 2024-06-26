@@ -1,12 +1,6 @@
 use std::path::PathBuf;
 
-use wgpu::{Device, Queue};
-
-use {
-    client::Client,
-    pipeline::Pipelines,
-    resources::{vertex, *},
-};
+use {client::Client, pipeline::Pipelines, resources::Resources};
 
 #[macro_use]
 mod macros;
@@ -35,10 +29,10 @@ pub struct Context {
 impl Context {
     pub async fn new(inputs: UserInputs) -> Self {
         let client = Client::new(&inputs).await;
-        let res = Resources::init(&inputs.src_img, &client);
+        let res = Resources::new(&inputs.src_img, &client);
 
         Self {
-            pipelines: Pipelines::init(&res, &client.device),
+            pipelines: Pipelines::new(&res, &client.device),
             res,
             client,
         }

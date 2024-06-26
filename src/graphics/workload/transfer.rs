@@ -1,4 +1,6 @@
-use super::*;
+use wgpu::CommandEncoder;
+
+use crate::graphics::Context;
 
 impl Context {
     pub(super) fn copy_target_to_buffer(&self, command_encoder: &mut CommandEncoder) {

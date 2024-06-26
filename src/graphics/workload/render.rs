@@ -1,6 +1,6 @@
-use wgpu::Operations;
+use wgpu::{CommandEncoder, Operations};
 
-use super::*;
+use crate::graphics::{Context, Resources};
 
 impl Context {
     pub(super) fn render(&self, command_encoder: &mut CommandEncoder) {

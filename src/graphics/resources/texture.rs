@@ -114,12 +114,11 @@ fn bytes_layout(cfg: &TextureConfig) -> (u32, u32) {
 
     let width = block_size * cfg.size.width;
 
-    match cfg.pad_bytes_per_row {
-        true => {
-            let stride = pad_size(width, wgpu::COPY_BYTES_PER_ROW_ALIGNMENT);
-            (stride, stride - width)
-        }
-        false => (width, 0),
+    if cfg.pad_bytes_per_row {
+        let stride = pad_size(width, wgpu::COPY_BYTES_PER_ROW_ALIGNMENT);
+        (stride, stride - width)
+    } else {
+        (width, 0)
     }
 }
 
@@ -138,9 +137,10 @@ fn pad_size(size: u32, align: u32) -> u32 {
 
 impl Client {
     fn create_texture(&self, cfg: &TextureConfig) -> wgpu::Texture {
-        let sample_count = match cfg.multisampled {
-            true => MULTISAMPLE_COUNT,
-            false => 1,
+        let sample_count = if cfg.multisampled {
+            MULTISAMPLE_COUNT
+        } else {
+            1
         };
         self.device.create_texture(&wgpu::TextureDescriptor {
             label: label!("{:?}Texture", cfg.name),

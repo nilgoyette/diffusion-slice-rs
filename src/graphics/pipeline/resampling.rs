@@ -1,4 +1,9 @@
-use super::*;
+use std::marker::PhantomData;
+
+use wgpu::{BlendState, ColorTargetState, ColorWrites, TextureFormat};
+
+use super::{triangle_primitive, PipelineState};
+use crate::graphics::resources::vertex::ImageVertex;
 
 pub fn state<'a>(color_format: TextureFormat) -> PipelineState<'a, ImageVertex> {
     PipelineState {

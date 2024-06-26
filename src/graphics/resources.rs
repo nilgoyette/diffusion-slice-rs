@@ -2,7 +2,7 @@ use wgpu::Buffer;
 
 use super::{Client, Image};
 
-pub use texture::*;
+pub use texture::Texture;
 
 mod buffer;
 mod texture;
@@ -19,7 +19,7 @@ pub struct Resources {
 }
 
 impl Resources {
-    pub fn init(image: &Image, client: &Client) -> Self {
+    pub fn new(image: &Image, client: &Client) -> Self {
         let target_texture = Texture::new_target(client);
 
         Self {

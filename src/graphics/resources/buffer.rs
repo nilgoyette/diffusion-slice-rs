@@ -1,8 +1,7 @@
 use glam::vec2;
 use wgpu::{Buffer, BufferUsages, Device};
 
-use super::*;
-use vertex::ImageVertex;
+use super::{vertex::ImageVertex, Texture};
 
 pub fn create_image_vertex_buffer(device: &Device) -> Buffer {
     use wgpu::util::{BufferInitDescriptor, DeviceExt};

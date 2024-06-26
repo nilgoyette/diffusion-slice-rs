@@ -1,12 +1,11 @@
 use std::marker::PhantomData;
 
-pub use wgpu::RenderPipeline;
-use wgpu::{
-    BlendState, ColorTargetState, ColorWrites, DepthStencilState, Device, PrimitiveState,
-    TextureFormat,
-};
+use wgpu::{ColorTargetState, DepthStencilState, Device, PrimitiveState, RenderPipeline};
 
-use super::{vertex::*, Resources, MULTISAMPLE_COUNT};
+use super::{
+    resources::{vertex::Vertex, Resources},
+    MULTISAMPLE_COUNT,
+};
 
 mod resampling;
 
@@ -18,7 +17,7 @@ pub struct Pipelines {
 }
 
 impl Pipelines {
-    pub fn init(res: &Resources, device: &Device) -> Self {
+    pub fn new(res: &Resources, device: &Device) -> Self {
         let fmt = res.target_texture.format;
 
         Self {
