@@ -22,19 +22,19 @@ impl Client {
             device,
             command_queue,
             img_size: inputs.dst_img_size,
-            multisample_count: max_supported_multisample_count(&adapter),
+            multisample_count: max_multisample_count(&adapter),
         }
     }
 }
 
-fn max_supported_multisample_count(adapter: &Adapter) -> u32 {
+fn max_multisample_count(adapter: &Adapter) -> u32 {
     adapter
         .get_texture_format_features(COLOR_FORMAT)
         .flags
         .supported_sample_counts()
         .into_iter()
         .max()
-        .expect("At least one multisample count should be supported")
+        .expect("4x is always supported")
 }
 
 async fn device(adapter: &Adapter) -> (Device, Queue) {
