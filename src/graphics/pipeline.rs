@@ -4,7 +4,7 @@ use wgpu::{ColorTargetState, DepthStencilState, Device, PrimitiveState, RenderPi
 
 use super::{
     resources::{vertex::Vertex, Resources},
-    MULTISAMPLE_COUNT,
+    Client,
 };
 
 mod resampling;
@@ -17,11 +17,11 @@ pub struct Pipelines {
 }
 
 impl Pipelines {
-    pub fn new(res: &Resources, device: &Device) -> Self {
+    pub fn new(res: &Resources, client: &Client) -> Self {
         let fmt = res.target_texture.format;
 
         Self {
-            resampling: create_pipeline(resampling::state(fmt), device),
+            resampling: create_pipeline(resampling::state(fmt), client),
         }
     }
 }
@@ -41,7 +41,8 @@ pub struct PipelineState<'a, V: Vertex> {
     pub _vertex_type: PhantomData<V>,
 }
 
-fn create_pipeline<V: Vertex>(state: PipelineState<V>, device: &Device) -> RenderPipeline {
+fn create_pipeline<V: Vertex>(state: PipelineState<V>, client: &Client) -> RenderPipeline {
+    let device = &client.device;
     let module = &shader_module(state.name, state.shader_code, device);
     let vertex_attributes = V::attributes();
 
@@ -64,7 +65,7 @@ fn create_pipeline<V: Vertex>(state: PipelineState<V>, device: &Device) -> Rende
         fragment: Some(fragment_state),
         primitive: state.primitive,
         depth_stencil: state.depth_stencil,
-        multisample: multisample(state.alpha_to_coverage),
+        multisample: multisample(client.multisample_count, state.alpha_to_coverage),
         multiview: None,
     })
 }
@@ -84,9 +85,9 @@ fn layout(name: &str, device: &Device) -> wgpu::PipelineLayout {
     })
 }
 
-fn multisample(alpha_to_coverage_enabled: bool) -> wgpu::MultisampleState {
+fn multisample(count: u32, alpha_to_coverage_enabled: bool) -> wgpu::MultisampleState {
     wgpu::MultisampleState {
-        count: MULTISAMPLE_COUNT,
+        count,
         mask: !0,
         alpha_to_coverage_enabled,
     }

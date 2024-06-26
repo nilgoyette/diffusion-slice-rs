@@ -2,7 +2,7 @@ use wgpu::Buffer;
 
 use super::{Client, Image};
 
-pub use texture::Texture;
+pub use texture::{Texture, COLOR_FORMAT};
 
 mod buffer;
 mod texture;

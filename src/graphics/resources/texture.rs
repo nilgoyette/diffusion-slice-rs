@@ -1,6 +1,8 @@
 use wgpu::{Extent3d, ImageCopyTexture, ImageDataLayout, Queue, TextureFormat, TextureUsages};
 
-use crate::graphics::{Client, Image, MULTISAMPLE_COUNT};
+use crate::graphics::{Client, Image};
+
+pub const COLOR_FORMAT: TextureFormat = TextureFormat::Rgba8Unorm;
 
 struct TextureConfig {
     name: String,
@@ -43,7 +45,7 @@ impl Texture {
         let cfg = TextureConfig {
             name: "SourceTexture".to_string(),
             usage: TextureUsages::COPY_DST | TextureUsages::TEXTURE_BINDING,
-            format: TextureFormat::Rgba8Unorm,
+            format: COLOR_FORMAT,
             size: extent(image.dimensions()),
             multisampled: false,
             pad_bytes_per_row: false,
@@ -58,7 +60,7 @@ impl Texture {
         let cfg = TextureConfig {
             name: "MultisampledTexture".to_string(),
             usage: TextureUsages::RENDER_ATTACHMENT,
-            format: TextureFormat::Rgba8Unorm,
+            format: COLOR_FORMAT,
             size: extent(client.img_size),
             multisampled: true,
             pad_bytes_per_row: false,
@@ -70,7 +72,7 @@ impl Texture {
         let cfg = TextureConfig {
             name: "TargetTexture".to_string(),
             usage: TextureUsages::COPY_SRC | TextureUsages::RENDER_ATTACHMENT,
-            format: TextureFormat::Rgba8Unorm,
+            format: COLOR_FORMAT,
             size: extent(client.img_size),
             multisampled: false,
             pad_bytes_per_row: true,
@@ -110,7 +112,7 @@ fn bytes_layout(cfg: &TextureConfig) -> (u32, u32) {
     let block_size = cfg
         .format
         .block_copy_size(None)
-        .expect("Bad texture format");
+        .expect("A valid texture format must provide a block size");
 
     let width = block_size * cfg.size.width;
 
@@ -138,7 +140,7 @@ fn pad_size(size: u32, align: u32) -> u32 {
 impl Client {
     fn create_texture(&self, cfg: &TextureConfig) -> wgpu::Texture {
         let sample_count = if cfg.multisampled {
-            MULTISAMPLE_COUNT
+            self.multisample_count
         } else {
             1
         };

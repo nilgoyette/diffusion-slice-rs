@@ -1,5 +1,4 @@
-use std::path::PathBuf;
-
+use crate::{Image, UserInputs};
 use {client::Client, pipeline::Pipelines, resources::Resources};
 
 #[macro_use]
@@ -10,31 +9,25 @@ mod pipeline;
 mod resources;
 mod workload;
 
-const MULTISAMPLE_COUNT: u32 = 4;
-
-pub type Image = image::RgbaImage;
-
-pub struct UserInputs {
-    pub src_img: Image,
-    pub dst_img_size: (u32, u32),
-    pub dst_img_path: PathBuf,
-}
-
-pub struct Context {
+struct Context {
     client: Client,
     res: Resources,
     pipelines: Pipelines,
 }
 
 impl Context {
-    pub async fn new(inputs: UserInputs) -> Self {
-        let client = Client::new(&inputs).await;
+    async fn new(inputs: &UserInputs) -> Self {
+        let client = Client::new(inputs).await;
         let res = Resources::new(&inputs.src_img, &client);
 
         Self {
-            pipelines: Pipelines::new(&res, &client.device),
+            pipelines: Pipelines::new(&res, &client),
             res,
             client,
         }
     }
+}
+
+pub fn run_full_pipeline(inputs: &UserInputs) -> Image {
+    pollster::block_on(Context::new(&inputs)).execute_workloads()
 }
