@@ -27,9 +27,14 @@ impl Context {
         let texture = &self.res.target_texture;
         let bytes_width = (texture.bytes_stride - texture.bytes_padding) as usize;
 
-        data.get_mapped_range()
+        let bytes = data
+            .get_mapped_range()
             .chunks(texture.bytes_stride as usize)
             .flat_map(|chunk| chunk[..bytes_width].iter().copied())
-            .collect()
+            .collect();
+
+        buffer.unmap();
+
+        bytes
     }
 }
