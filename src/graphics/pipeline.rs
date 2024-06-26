@@ -1,16 +1,17 @@
 use std::marker::PhantomData;
 
-use wgpu::{ColorTargetState, DepthStencilState, Device, PrimitiveState, RenderPipeline};
+use wgpu::{
+    BindGroupLayout, ColorTargetState, DepthStencilState, Device, PrimitiveState, RenderPipeline,
+};
 
 use super::{
-    resources::{vertex::Vertex, Resources},
+    resources::{vertex::Vertex, Binding, Resources},
     Client,
 };
 
 mod resampling;
 
 pub struct Pipelines {
-    // NOTE: Currently, this pipeline only displays a color gradient, which is not its real purpose
     pub resampling: RenderPipeline,
     // pub lines: RenderPipeline,
     // pub post_processing: RenderPipeline,
@@ -21,7 +22,7 @@ impl Pipelines {
         let fmt = res.target_texture.format;
 
         Self {
-            resampling: create_pipeline(resampling::state(fmt), client),
+            resampling: create_pipeline(resampling::state(fmt, &res.binding), client),
         }
     }
 }
@@ -31,6 +32,8 @@ pub struct PipelineState<'a, V: Vertex> {
 
     /// WGSL code. Generally included with `include_str!(...)`
     pub shader_code: &'a str,
+
+    pub bindings: Vec<&'a Binding>,
 
     pub color_target: ColorTargetState,
     pub depth_stencil: Option<DepthStencilState>,
@@ -60,7 +63,7 @@ fn create_pipeline<V: Vertex>(state: PipelineState<V>, client: &Client) -> Rende
     };
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: label!("{}Pipeline", state.name),
-        layout: Some(&layout(state.name, device)),
+        layout: Some(&layout(state.name, state.bindings, device)),
         vertex: vertex_state,
         fragment: Some(fragment_state),
         primitive: state.primitive,
@@ -77,10 +80,12 @@ fn shader_module(name: &str, code: &str, device: &Device) -> wgpu::ShaderModule 
     })
 }
 
-fn layout(name: &str, device: &Device) -> wgpu::PipelineLayout {
+fn layout(name: &str, bindings: Vec<&Binding>, device: &Device) -> wgpu::PipelineLayout {
+    let binding_layouts: Vec<&BindGroupLayout> = bindings.into_iter().map(|b| &b.layout).collect();
+
     device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: label!("{}PipelineLayout", name),
-        bind_group_layouts: &[],
+        bind_group_layouts: &binding_layouts,
         push_constant_ranges: &[],
     })
 }
@@ -98,6 +103,7 @@ fn triangle_primitive() -> PrimitiveState {
         topology: wgpu::PrimitiveTopology::TriangleList,
         front_face: wgpu::FrontFace::Ccw,
         polygon_mode: wgpu::PolygonMode::Fill,
+        cull_mode: Some(wgpu::Face::Front),
         ..Default::default()
     }
 }

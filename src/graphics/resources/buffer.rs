@@ -19,12 +19,12 @@ fn quad_vertices() -> [ImageVertex; 6] {
         uv: vec2(u, v),
     };
     [
-        vertex(1., 1., 1., 1.),
-        vertex(1., -1., 1., 0.),
-        vertex(-1., -1., 0., 0.),
-        vertex(1., 1., 1., 1.),
-        vertex(-1., -1., 1., 0.),
-        vertex(-1., 1., 0., 1.),
+        vertex(1., 1., 1., 0.),
+        vertex(1., -1., 1., 1.),
+        vertex(-1., -1., 0., 1.),
+        vertex(1., 1., 1., 0.),
+        vertex(-1., -1., 0., 1.),
+        vertex(-1., 1., 0., 0.),
     ]
 }
 

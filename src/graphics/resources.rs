@@ -2,15 +2,20 @@ use wgpu::Buffer;
 
 use super::{Client, Image};
 
-pub use texture::{Texture, COLOR_FORMAT};
+pub use {
+    binding::Binding,
+    texture::{Texture, COLOR_FORMAT},
+};
 
+mod binding;
 mod buffer;
 mod texture;
 pub mod vertex;
 
 pub struct Resources {
-    #[allow(unused)]
-    pub source_texture: Texture,
+    pub binding: Binding,
+
+    pub _source_texture: Texture,
     pub multisampled_texture: Texture,
     pub target_texture: Texture,
 
@@ -21,12 +26,15 @@ pub struct Resources {
 impl Resources {
     pub fn new(image: &Image, client: &Client) -> Self {
         let target_texture = Texture::new_target(client);
+        let _source_texture = Texture::new_source(image, client);
 
         Self {
+            binding: Binding::new(&_source_texture, &client.device),
+
             image_vertex_buffer: buffer::create_image_vertex_buffer(&client.device),
             transfer_buffer: buffer::create_transfer_buffer(&target_texture, &client.device),
 
-            source_texture: Texture::new_source(image, client),
+            _source_texture,
             multisampled_texture: Texture::new_multisampled(client),
             target_texture,
         }
