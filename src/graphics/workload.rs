@@ -18,7 +18,7 @@ impl Context {
         self.save_image(self.receive_image_bytes());
     }
 
-    fn command_encoder(&self) -> wgpu::CommandEncoder {
+    fn command_encoder(&self) -> CommandEncoder {
         self.client
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
