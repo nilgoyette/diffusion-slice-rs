@@ -22,7 +22,7 @@ impl Context {
         let data = buffer.slice(..);
 
         data.map_async(wgpu::MapMode::Read, |result| {
-            result.expect("Failed to map buffer")
+            result.expect("The buffer can be mapped")
         });
         self.client.device.poll(wgpu::Maintain::Wait); // Synchronization
 

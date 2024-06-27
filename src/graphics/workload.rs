@@ -1,13 +1,12 @@
 use wgpu::CommandEncoder;
 
-use super::Context;
+use super::{Context, Image};
 
 mod render;
-mod save;
 mod transfer;
 
 impl Context {
-    pub fn execute_workloads(&self) {
+    pub fn execute_workloads(&self) -> Image {
         let mut command_encoder = self.command_encoder();
 
         self.render(&mut command_encoder);
@@ -15,7 +14,10 @@ impl Context {
 
         self.client.command_queue.submit([command_encoder.finish()]);
 
-        self.save_image(self.receive_image_bytes());
+        let (width, height) = self.client.img_size;
+
+        Image::from_raw(width, height, self.receive_image_bytes())
+            .expect("Data size must match image dimensions")
     }
 
     fn command_encoder(&self) -> CommandEncoder {
