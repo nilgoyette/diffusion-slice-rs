@@ -48,7 +48,7 @@ fn create_bind_group(entries: Vec<Entry>, layout: &BindGroupLayout, device: &Dev
     let entries: Vec<BindGroupEntry> = entries
         .into_iter()
         .enumerate()
-        .map(|(i, entry)| wgpu::BindGroupEntry {
+        .map(|(i, entry)| BindGroupEntry {
             binding: i as u32,
             resource: entry.resource,
         })
@@ -64,18 +64,13 @@ fn create_bind_group(entries: Vec<Entry>, layout: &BindGroupLayout, device: &Dev
 fn create_layout(entries: &[Entry], device: &Device) -> BindGroupLayout {
     use wgpu::{BindGroupLayoutDescriptor, BindGroupLayoutEntry};
 
-    let entries: Vec<BindGroupLayoutEntry> = entries
-        .iter()
-        .enumerate()
-        .map(|(i, entry)| {
-            BindGroupLayoutEntry {
-                binding: i as u32,
-                visibility: entry.stage,
-                ty: entry.binding_type,
-                count: None, // For arrays
-            }
-        })
-        .collect();
+    let entry = |(i, entry): (usize, &Entry)| BindGroupLayoutEntry {
+        binding: i as u32,
+        visibility: entry.stage,
+        ty: entry.binding_type,
+        count: None, // For arrays
+    };
+    let entries: Vec<BindGroupLayoutEntry> = entries.iter().enumerate().map(entry).collect();
 
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
         label: label!("BindingLayout"),
