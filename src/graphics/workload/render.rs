@@ -6,6 +6,8 @@ impl Context {
     pub(super) fn render(&self, command_encoder: &mut CommandEncoder) {
         let mut pass = render_pass(&self.res, command_encoder);
 
+        pass.set_bind_group(0, &self.res.binding.group, &[]);
+
         pass.set_pipeline(&self.pipelines.resampling);
         pass.set_vertex_buffer(0, self.res.image_vertex_buffer.slice(..));
         pass.draw(0..6, 0..1);
