@@ -31,7 +31,7 @@ impl Resources {
         Self {
             binding: Binding::new(&_source_texture, &client.device),
 
-            image_vertex_buffer: buffer::create_image_vertex_buffer(&client.device),
+            image_vertex_buffer: buffer::create_image_vertex_buffer(image.dimensions(), &client),
             transfer_buffer: buffer::create_transfer_buffer(&target_texture, &client.device),
 
             _source_texture,

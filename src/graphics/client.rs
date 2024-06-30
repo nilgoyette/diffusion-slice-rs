@@ -40,8 +40,9 @@ fn max_multisample_count(adapter: &Adapter) -> u32 {
 async fn device(adapter: &Adapter) -> (Device, Queue) {
     use wgpu::Features;
 
-    let required_features =
-        Features::POLYGON_MODE_LINE | Features::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES;
+    let required_features = Features::POLYGON_MODE_LINE
+        | Features::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES
+        | Features::ADDRESS_MODE_CLAMP_TO_BORDER;
 
     let desc = &wgpu::DeviceDescriptor {
         label: None,

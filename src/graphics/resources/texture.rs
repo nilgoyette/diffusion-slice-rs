@@ -43,7 +43,7 @@ impl Texture {
 
     pub fn new_source(image: &Image, client: &Client) -> Self {
         let cfg = TextureConfig {
-            name: "SourceTexture".to_string(),
+            name: "Source".to_string(),
             usage: TextureUsages::COPY_DST | TextureUsages::TEXTURE_BINDING,
             format: COLOR_FORMAT,
             size: extent(image.dimensions()),
@@ -58,7 +58,7 @@ impl Texture {
 
     pub fn new_multisampled(client: &Client) -> Self {
         let cfg = TextureConfig {
-            name: "MultisampledTexture".to_string(),
+            name: "Multisampled".to_string(),
             usage: TextureUsages::RENDER_ATTACHMENT,
             format: COLOR_FORMAT,
             size: extent(client.img_size),
@@ -70,7 +70,7 @@ impl Texture {
 
     pub fn new_target(client: &Client) -> Self {
         let cfg = TextureConfig {
-            name: "TargetTexture".to_string(),
+            name: "Target".to_string(),
             usage: TextureUsages::COPY_SRC | TextureUsages::RENDER_ATTACHMENT,
             format: COLOR_FORMAT,
             size: extent(client.img_size),
@@ -145,7 +145,7 @@ impl Client {
             1
         };
         self.device.create_texture(&wgpu::TextureDescriptor {
-            label: label!("{:?}Texture", cfg.name),
+            label: label!("{}Texture", cfg.name),
             size: cfg.size,
             mip_level_count: 1,
             sample_count,
