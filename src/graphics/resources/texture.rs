@@ -1,3 +1,4 @@
+use glam::UVec2;
 use wgpu::{Extent3d, ImageCopyTexture, ImageDataLayout, Queue, TextureFormat, TextureUsages};
 
 use crate::graphics::{Client, Image};
@@ -46,7 +47,7 @@ impl Texture {
             name: "Source".to_string(),
             usage: TextureUsages::COPY_DST | TextureUsages::TEXTURE_BINDING,
             format: COLOR_FORMAT,
-            size: extent(image.dimensions()),
+            size: extent(UVec2::from(image.dimensions())),
             multisampled: false,
             pad_bytes_per_row: false,
         };
@@ -124,11 +125,10 @@ fn bytes_layout(cfg: &TextureConfig) -> (u32, u32) {
     }
 }
 
-fn extent(size: (u32, u32)) -> Extent3d {
-    let (width, height) = size;
+fn extent(size: UVec2) -> Extent3d {
     wgpu::Extent3d {
-        width,
-        height,
+        width: size.x,
+        height: size.y,
         depth_or_array_layers: 1,
     }
 }

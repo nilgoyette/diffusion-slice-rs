@@ -14,9 +14,9 @@ impl Context {
 
         self.client.command_queue.submit([command_encoder.finish()]);
 
-        let (width, height) = self.client.img_size;
+        let size = self.client.img_size;
 
-        Image::from_raw(width, height, self.receive_image_bytes())
+        Image::from_raw(size.x, size.y, self.receive_image_bytes())
             .expect("Data size must match image dimensions")
     }
 

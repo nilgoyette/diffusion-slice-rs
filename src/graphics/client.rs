@@ -1,3 +1,4 @@
+use glam::UVec2;
 use wgpu::{Adapter, Device, Queue};
 
 use super::UserInputs;
@@ -7,7 +8,7 @@ use crate::graphics::resources::COLOR_FORMAT;
 pub struct Client {
     pub device: Device,
     pub command_queue: Queue,
-    pub img_size: (u32, u32),
+    pub img_size: UVec2,
     pub multisample_count: u32,
 }
 
@@ -40,9 +41,8 @@ fn max_multisample_count(adapter: &Adapter) -> u32 {
 async fn device(adapter: &Adapter) -> (Device, Queue) {
     use wgpu::Features;
 
-    let required_features = Features::POLYGON_MODE_LINE
-        | Features::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES
-        | Features::ADDRESS_MODE_CLAMP_TO_BORDER;
+    let required_features =
+        Features::POLYGON_MODE_LINE | Features::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES;
 
     let desc = &wgpu::DeviceDescriptor {
         label: None,

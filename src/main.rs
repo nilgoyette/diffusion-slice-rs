@@ -3,6 +3,8 @@ use std::{
     time::Instant,
 };
 
+use glam::{uvec2, UVec2};
+
 mod file;
 mod graphics;
 
@@ -10,7 +12,7 @@ type Image = image::RgbaImage;
 
 pub struct UserInputs {
     pub src_img: Image,
-    pub dst_img_size: (u32, u32),
+    pub dst_img_size: UVec2,
     pub dst_img_path: PathBuf,
 }
 
@@ -23,7 +25,7 @@ fn main() {
     // TODO Validate user inputs
     let inputs = UserInputs {
         src_img: file::load_image(Path::new("sunshine.jpg")),
-        dst_img_size: (800, 600),
+        dst_img_size: uvec2(1200, 800),
         dst_img_path: PathBuf::from("output.png"),
     };
     let image = graphics::run_full_pipeline(&inputs);

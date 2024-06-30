@@ -82,11 +82,10 @@ fn create_sampler(device: &Device) -> wgpu::Sampler {
     use wgpu::{AddressMode, FilterMode};
 
     device.create_sampler(&wgpu::SamplerDescriptor {
-        address_mode_u: AddressMode::ClampToBorder,
-        address_mode_v: AddressMode::ClampToBorder,
+        address_mode_u: AddressMode::ClampToEdge,
+        address_mode_v: AddressMode::ClampToEdge,
         mag_filter: FilterMode::Linear,
         min_filter: FilterMode::Linear,
-        border_color: Some(wgpu::SamplerBorderColor::OpaqueBlack),
         ..Default::default()
     })
 }

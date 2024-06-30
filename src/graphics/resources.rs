@@ -1,3 +1,4 @@
+use glam::UVec2;
 use wgpu::Buffer;
 
 use super::{Client, Image};
@@ -15,7 +16,6 @@ pub mod vertex;
 pub struct Resources {
     pub binding: Binding,
 
-    pub _source_texture: Texture,
     pub multisampled_texture: Texture,
     pub target_texture: Texture,
 
@@ -26,15 +26,16 @@ pub struct Resources {
 impl Resources {
     pub fn new(image: &Image, client: &Client) -> Self {
         let target_texture = Texture::new_target(client);
-        let _source_texture = Texture::new_source(image, client);
+        let source_texture = Texture::new_source(image, client);
+
+        let img_size = UVec2::from(image.dimensions());
 
         Self {
-            binding: Binding::new(&_source_texture, &client.device),
+            binding: Binding::new(&source_texture, &client.device),
 
-            image_vertex_buffer: buffer::create_image_vertex_buffer(image.dimensions(), &client),
+            image_vertex_buffer: buffer::create_image_vertex_buffer(img_size, client),
             transfer_buffer: buffer::create_transfer_buffer(&target_texture, &client.device),
 
-            _source_texture,
             multisampled_texture: Texture::new_multisampled(client),
             target_texture,
         }
