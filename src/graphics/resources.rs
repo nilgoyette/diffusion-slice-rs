@@ -15,6 +15,7 @@ pub mod vertex;
 pub struct Resources {
     pub binding: Binding,
 
+    /// This texture handler is stored to keep the allocation, but it is not used after being declared.
     pub _source_texture: Texture,
     pub multisampled_texture: Texture,
     pub target_texture: Texture,
