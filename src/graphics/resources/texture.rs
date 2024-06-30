@@ -1,3 +1,4 @@
+use glam::UVec2;
 use wgpu::{Extent3d, ImageCopyTexture, ImageDataLayout, Queue, TextureFormat, TextureUsages};
 
 use crate::graphics::{Client, Image};
@@ -43,10 +44,10 @@ impl Texture {
 
     pub fn new_source(image: &Image, client: &Client) -> Self {
         let cfg = TextureConfig {
-            name: "SourceTexture".to_string(),
+            name: "Source".to_string(),
             usage: TextureUsages::COPY_DST | TextureUsages::TEXTURE_BINDING,
             format: COLOR_FORMAT,
-            size: extent(image.dimensions()),
+            size: extent(UVec2::from(image.dimensions())),
             multisampled: false,
             pad_bytes_per_row: false,
         };
@@ -58,7 +59,7 @@ impl Texture {
 
     pub fn new_multisampled(client: &Client) -> Self {
         let cfg = TextureConfig {
-            name: "MultisampledTexture".to_string(),
+            name: "Multisampled".to_string(),
             usage: TextureUsages::RENDER_ATTACHMENT,
             format: COLOR_FORMAT,
             size: extent(client.img_size),
@@ -70,7 +71,7 @@ impl Texture {
 
     pub fn new_target(client: &Client) -> Self {
         let cfg = TextureConfig {
-            name: "TargetTexture".to_string(),
+            name: "Target".to_string(),
             usage: TextureUsages::COPY_SRC | TextureUsages::RENDER_ATTACHMENT,
             format: COLOR_FORMAT,
             size: extent(client.img_size),
@@ -124,11 +125,10 @@ fn bytes_layout(cfg: &TextureConfig) -> (u32, u32) {
     }
 }
 
-fn extent(size: (u32, u32)) -> Extent3d {
-    let (width, height) = size;
+fn extent(size: UVec2) -> Extent3d {
     wgpu::Extent3d {
-        width,
-        height,
+        width: size.x,
+        height: size.y,
         depth_or_array_layers: 1,
     }
 }
@@ -145,7 +145,7 @@ impl Client {
             1
         };
         self.device.create_texture(&wgpu::TextureDescriptor {
-            label: label!("{:?}Texture", cfg.name),
+            label: label!("{}Texture", cfg.name),
             size: cfg.size,
             mip_level_count: 1,
             sample_count,

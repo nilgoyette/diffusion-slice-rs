@@ -79,9 +79,11 @@ fn create_layout(entries: &[Entry], device: &Device) -> BindGroupLayout {
 }
 
 fn create_sampler(device: &Device) -> wgpu::Sampler {
-    use wgpu::FilterMode;
+    use wgpu::{AddressMode, FilterMode};
 
     device.create_sampler(&wgpu::SamplerDescriptor {
+        address_mode_u: AddressMode::ClampToEdge,
+        address_mode_v: AddressMode::ClampToEdge,
         mag_filter: FilterMode::Linear,
         min_filter: FilterMode::Linear,
         ..Default::default()

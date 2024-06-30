@@ -1,3 +1,4 @@
+use glam::UVec2;
 use wgpu::{Adapter, Device, Queue};
 
 use super::UserInputs;
@@ -7,7 +8,7 @@ use crate::graphics::resources::COLOR_FORMAT;
 pub struct Client {
     pub device: Device,
     pub command_queue: Queue,
-    pub img_size: (u32, u32),
+    pub img_size: UVec2,
     pub multisample_count: u32,
 }
 
