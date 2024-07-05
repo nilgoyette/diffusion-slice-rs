@@ -1,12 +1,42 @@
 use std::path::Path;
 
+use ndarray::{Array3, Ix3};
+use nifti::{DataElement, InMemNiftiVolume, IntoNdArray, NiftiHeader, NiftiObject, ReaderOptions};
+
 use crate::Image;
 
-pub fn load_image(input_path: &Path) -> Image {
-    match image::open(input_path) {
-        Ok(image) => image.into_rgba8(),
-        Err(error) => panic!("Image at {input_path:?} could not be loaded: {error}"),
+/// Read a nifti image into a `Array3<T>` object.
+///
+/// Panics if the image isn't in 3D.
+pub fn read_3d_image<P, T>(path: P) -> (NiftiHeader, Array3<T>)
+where
+    P: AsRef<Path>,
+    T: DataElement,
+{
+    let path = path.as_ref();
+    if !path.exists() {
+        panic!("Image {path:?} doesn't exist.");
     }
+
+    let nifti_object = ReaderOptions::new()
+        .fix_header(true)
+        .read_file(path)
+        .expect("Nifti file is unreadable.");
+    let mut header = nifti_object.header().clone();
+    let mut volume = nifti_object.into_volume();
+
+    // Fix wrong dimension on some 3D images and check if the requested dimension is equal to
+    // the actual number of dimensions of the image.
+    if header.dim[header.dim[0] as usize] == 1 {
+        header.dim[0] -= 1;
+        volume = InMemNiftiVolume::from_raw_data(&header, volume.into_raw_data()).unwrap();
+    }
+
+    let dyn_data = volume.into_ndarray::<T>().unwrap();
+    let data = dyn_data
+        .into_dimensionality::<Ix3>()
+        .expect("Loaded mask in not a 3D image");
+    (header, data)
 }
 
 pub fn save_image(img: Image, output_path: &Path) {

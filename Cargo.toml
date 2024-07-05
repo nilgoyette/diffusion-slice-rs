@@ -4,11 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-wgpu = "0.20" # GPU API
-env_logger = "0.11" # Logging client
-log = "0.4" # Logging API
-pollster = "0.3" # Async runtime
 bytemuck = { version = "1.16", features = ["derive"] } # Raw data manipulations
+clap = { version = "4.5.8", features = ["derive"] }
+env_logger = "0.11" # Logging client
 glam = { version = "0.27", features = ["bytemuck"] } # Fast math types
 image = "0.25" # Image encoders/decoders 
-clap = { version = "4.5.8", features = ["derive"] }
+log = "0.4" # Logging API
+ndarray = "0.15"
+nifti = { version = "0.16", features = ["ndarray_volumes", "nalgebra_affine"] }
+pollster = "0.3" # Async runtime
+wgpu = "0.20" # GPU API

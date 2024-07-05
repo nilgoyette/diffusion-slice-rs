@@ -1,8 +1,9 @@
 use glam::UVec2;
 use wgpu::{Extent3d, ImageCopyTexture, ImageDataLayout, Queue, TextureFormat, TextureUsages};
 
-use crate::graphics::{Client, Image};
+use crate::graphics::{Client, ImageSlice};
 
+pub const GRAY_FORMAT: TextureFormat = TextureFormat::R8Unorm;
 pub const COLOR_FORMAT: TextureFormat = TextureFormat::Rgba8Unorm;
 
 struct TextureConfig {
@@ -42,12 +43,12 @@ impl Texture {
         }
     }
 
-    pub fn new_source(image: &Image, client: &Client) -> Self {
+    pub fn new_source(image: &ImageSlice, client: &Client) -> Self {
         let cfg = TextureConfig {
             name: "Source".to_string(),
             usage: TextureUsages::COPY_DST | TextureUsages::TEXTURE_BINDING,
-            format: COLOR_FORMAT,
-            size: extent(UVec2::from(image.dimensions())),
+            format: GRAY_FORMAT,
+            size: extent(UVec2::new(image.dim().0 as u32, image.dim().1 as u32)),
             multisampled: false,
             pad_bytes_per_row: false,
         };
@@ -81,8 +82,9 @@ impl Texture {
         Self::new(cfg, client)
     }
 
-    fn send_image(&self, image: &Image, command_queue: &Queue) {
-        command_queue.write_texture(self.image_copy(), image, self.data_layout(), self.size);
+    fn send_image(&self, image: &ImageSlice, command_queue: &Queue) {
+        let bytes = image.as_slice_memory_order().unwrap();
+        command_queue.write_texture(self.image_copy(), bytes, self.data_layout(), self.size);
     }
 
     pub fn image_copy(&self) -> ImageCopyTexture {
