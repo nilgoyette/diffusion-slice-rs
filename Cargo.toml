@@ -11,3 +11,4 @@ pollster = "0.3" # Async runtime
 bytemuck = { version = "1.16", features = ["derive"] } # Raw data manipulations
 glam = { version = "0.27", features = ["bytemuck"] } # Fast math types
 image = "0.25" # Image encoders/decoders 
+clap = { version = "4.5.8", features = ["derive"] }
