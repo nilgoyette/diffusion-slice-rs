@@ -15,16 +15,16 @@ This is **not** an image viewer (like [MI-Brain](https://github.com/imeka/mi-bra
 
 ## Roadmap
 
-- [ ] Display toy image data and save the result to png
-- [ ] Choose the surface dimension
+- [x] Display toy image data and save the result to png
+- [x] Choose the surface dimension
 - [ ] Load actual NIfTI files, using [nifti-rs](https://github.com/Enet4/nifti-rs)
-- [ ] Display characters in the image
 - [ ] Save several image slices instead of one
 - [ ] Display toy streamlines/fibers, using [trk-io](https://github.com/imeka/trk-io)
-- [ ] Add various streamlines display options
 - [ ] Load actual TrackVis files
+- [ ] Add various streamlines display options
 
 The following features might be added
 
+- [ ] Display characters in the image
 - [ ] White background option (instead of black)
 - [ ] LUT to color the image
