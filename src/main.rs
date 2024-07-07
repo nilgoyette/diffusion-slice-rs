@@ -14,7 +14,7 @@ type ImageSlice = Array2<u8>;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Input NiFTI image
+    /// Input NIfTI image
     pub input_image: PathBuf,
 
     /// Output png image
@@ -40,10 +40,10 @@ fn main() {
 
     let (_nifti_header, data) = read_3d_image::<_, f32>(args.input_image);
 
-    // Lets take a "random" slice for now
+    // Let's take a "random" slice for now
     let slice = data.slice(s![.., 90, ..]).to_owned();
 
-    // Rescale wathever we've got to u8
+    // Rescale whatever we've got to u8
     let image_min = data.fold(f32::MAX, |acc, &v| f32::min(acc, v));
     let image_max = data.fold(f32::MIN, |acc, &v| f32::max(acc, v));
     let image_range = image_max - image_min;
@@ -53,9 +53,9 @@ fn main() {
     let slice: Array2<u8> =
         slice.mapv(|v| ((v - image_min) * (type_range / image_range) + type_min) as u8);
 
-    // A NiFTI image is stored in 'f' order, but it doesn't know that much itself so ndarray thinks
+    // A NIfTI image is stored in 'f' order, but it doesn't know that much itself so ndarray thinks
     // it's the standard 'c' order. Because of this, we convert it to 'f' order, which actually
-    // converts it to 'c' order. Voila.
+    // converts it to 'c' order. Voilà.
     let mut src_img = Array2::zeros(slice.dim().f());
     src_img.assign(&slice);
 

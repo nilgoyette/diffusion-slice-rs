@@ -5,7 +5,7 @@ use nifti::{DataElement, InMemNiftiVolume, IntoNdArray, NiftiHeader, NiftiObject
 
 use crate::Image;
 
-/// Read a nifti image into a `Array3<T>` object.
+/// Read a NIfTI image into a `Array3<T>` object.
 ///
 /// Panics if the image isn't in 3D.
 pub fn read_3d_image<P, T>(path: P) -> (NiftiHeader, Array3<T>)
@@ -21,11 +21,11 @@ where
     let nifti_object = ReaderOptions::new()
         .fix_header(true)
         .read_file(path)
-        .expect("Nifti file is unreadable.");
+        .expect("NIfTI file is unreadable.");
     let mut header = nifti_object.header().clone();
     let mut volume = nifti_object.into_volume();
 
-    // Fix wrong dimension on some 3D images and check if the requested dimension is equal to
+    // Fix wrong dimensions on some 3D images and check if the requested dimension is equal to
     // the actual number of dimensions of the image.
     if header.dim[header.dim[0] as usize] == 1 {
         header.dim[0] -= 1;
