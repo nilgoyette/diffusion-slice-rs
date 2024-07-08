@@ -38,12 +38,12 @@ fn quad_vertices(uv_offset: Vec2) -> [ImageVertex; 6] {
         uv: vec2(u, v),
     };
     [
-        vertex(1., 1., 1. + du, 0. - dv),
-        vertex(1., -1., 1. + du, 1. + dv),
-        vertex(-1., -1., 0. - du, 1. + dv),
-        vertex(1., 1., 1. + du, 0. - dv),
-        vertex(-1., -1., 0. - du, 1. + dv),
-        vertex(-1., 1., 0. - du, 0. - dv),
+        vertex(1., 1., 0. - du, 1. + dv),
+        vertex(1., -1., 0. - du, 0. - dv),
+        vertex(-1., -1., 1. + du, 0. - dv),
+        vertex(1., 1., 0. - du, 1. + dv),
+        vertex(-1., -1., 1. + du, 0. - dv),
+        vertex(-1., 1., 1. + du, 1. + dv),
     ]
 }
 
