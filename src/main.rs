@@ -23,6 +23,10 @@ struct Args {
     /// Width and height of the output 2D image
     #[arg(num_args(2), long, default_values = ["800", "600"])]
     pub output_size: Vec<u32>,
+
+    /// Which view(s) to use tp capture the image(s)
+    #[arg(num_args(1..7), long, default_values = ["superior", "posterior", "left"])]
+    pub views: Vec<View>,
 }
 
 pub struct UserInputs {
@@ -35,10 +39,8 @@ fn main() {
     init_logger();
 
     let args = Args::parse();
-    println!("{args:?}");
-
     let (nifti_header, data) = read_3d_image::<_, f32>(args.input_image);
-    let slicer = Slicer::from_3d(nifti_header, data, 3, View::Anterior, (0.3, 0.7));
+    let slicer = Slicer::from_3d(nifti_header, data, 3, &args.views, (0.3, 0.7));
     for slice in slicer.slices {
         let inputs = UserInputs {
             src_img: slice.data,
