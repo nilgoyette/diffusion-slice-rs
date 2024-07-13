@@ -21,7 +21,7 @@ where
     let nifti_object = ReaderOptions::new()
         .fix_header(true)
         .read_file(path)
-        .expect("NIfTI file is unreadable.");
+        .expect("NIfTI file should be readable and valid.");
     let mut header = nifti_object.header().clone();
     let mut volume = nifti_object.into_volume();
 
@@ -35,7 +35,7 @@ where
     let dyn_data = volume.into_ndarray::<T>().unwrap();
     let data = dyn_data
         .into_dimensionality::<Ix3>()
-        .expect("Loaded mask in not a 3D image");
+        .expect("Loaded NIfTI image should be a 3D array");
     (header, data)
 }
 
