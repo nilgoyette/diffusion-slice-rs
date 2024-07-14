@@ -20,5 +20,6 @@ fn vertex(in: VertexInput) -> FragmentInput {
 
 @fragment
 fn fragment(in: FragmentInput) -> @location(0) vec4f {
-    return textureSample(source_texture, linear_sampler, in.uv);
+    let value = textureSample(source_texture, linear_sampler, in.uv).r;
+    return vec4f(vec3f(value), 1.);
 }

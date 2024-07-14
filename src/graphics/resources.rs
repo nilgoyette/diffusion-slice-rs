@@ -1,7 +1,7 @@
 use glam::UVec2;
 use wgpu::Buffer;
 
-use super::{Client, Image};
+use super::{Client, ImageSlice};
 
 pub use {
     binding::Binding,
@@ -24,11 +24,11 @@ pub struct Resources {
 }
 
 impl Resources {
-    pub fn new(image: &Image, client: &Client) -> Self {
+    pub fn new(image: &ImageSlice, client: &Client) -> Self {
         let target_texture = Texture::new_target(client);
         let source_texture = Texture::new_source(image, client);
 
-        let img_size = UVec2::from(image.dimensions());
+        let img_size = UVec2::new(image.dim().0 as u32, image.dim().1 as u32);
 
         Self {
             binding: Binding::new(&source_texture, &client.device),

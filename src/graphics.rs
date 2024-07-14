@@ -1,4 +1,4 @@
-use crate::{Image, UserInputs};
+use crate::{Image, ImageSlice, UserInputs};
 use {client::Client, pipeline::Pipelines, resources::Resources};
 
 #[macro_use]
