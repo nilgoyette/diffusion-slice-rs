@@ -15,8 +15,8 @@ struct Context {
     pipelines: Pipelines,
 }
 
-impl Context {
-    async fn new(inputs: &UserInputs) -> Self {
+impl<'a> Context {
+    async fn new(inputs: &UserInputs<'a>) -> Self {
         let client = Client::new(inputs).await;
         let res = Resources::new(&inputs.src_img, &client);
 
