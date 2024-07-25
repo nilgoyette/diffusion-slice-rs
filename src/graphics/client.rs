@@ -12,8 +12,8 @@ pub struct Client {
     pub multisample_count: u32,
 }
 
-impl Client {
-    pub async fn new(inputs: &UserInputs) -> Self {
+impl<'a> Client {
+    pub async fn new(inputs: &UserInputs<'a>) -> Self {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let adapter = adapter(&instance).await;
 
