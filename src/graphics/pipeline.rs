@@ -5,7 +5,7 @@ use wgpu::{
 };
 
 use super::{
-    resources::{vertex::Vertex, Binding, Resources},
+    resources::{vertex::Vertex, Resources},
     Client,
 };
 
@@ -22,7 +22,7 @@ impl Pipelines {
         let fmt = res.target_texture.format;
 
         Self {
-            resampling: create_pipeline(resampling::state(fmt, &res.binding), client),
+            resampling: create_pipeline(resampling::state(fmt), res, client),
         }
     }
 }
@@ -33,7 +33,7 @@ pub struct PipelineState<'a, V: Vertex> {
     /// WGSL code. Generally included with `include_str!(...)`
     pub shader_code: &'a str,
 
-    pub bindings: Vec<&'a Binding>,
+    pub bind_layouts: Vec<&'a str>,
 
     pub color_target: ColorTargetState,
     pub depth_stencil: Option<DepthStencilState>,
@@ -44,7 +44,11 @@ pub struct PipelineState<'a, V: Vertex> {
     pub _vertex_type: PhantomData<V>,
 }
 
-fn create_pipeline<V: Vertex>(state: PipelineState<V>, client: &Client) -> RenderPipeline {
+fn create_pipeline<V: Vertex>(
+    state: PipelineState<V>,
+    res: &Resources,
+    client: &Client,
+) -> RenderPipeline {
     let device = &client.device;
     let module = &shader_module(state.name, state.shader_code, device);
     let vertex_attributes = V::attributes();
@@ -63,7 +67,7 @@ fn create_pipeline<V: Vertex>(state: PipelineState<V>, client: &Client) -> Rende
     };
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: label!("{}Pipeline", state.name),
-        layout: Some(&layout(state.name, state.bindings, device)),
+        layout: Some(&layout(state.name, state.bind_layouts, res, device)),
         vertex: vertex_state,
         fragment: Some(fragment_state),
         primitive: state.primitive,
@@ -80,12 +84,20 @@ fn shader_module(name: &str, code: &str, device: &Device) -> wgpu::ShaderModule 
     })
 }
 
-fn layout(name: &str, bindings: Vec<&Binding>, device: &Device) -> wgpu::PipelineLayout {
-    let binding_layouts: Vec<&BindGroupLayout> = bindings.into_iter().map(|b| &b.layout).collect();
+fn layout(
+    name: &str,
+    bind_layouts: Vec<&str>,
+    res: &Resources,
+    device: &Device,
+) -> wgpu::PipelineLayout {
+    let bind_group_layouts: &Vec<&BindGroupLayout> = &bind_layouts
+        .into_iter()
+        .map(|id| &res.bind_layouts[id])
+        .collect();
 
     device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: label!("{}PipelineLayout", name),
-        bind_group_layouts: &binding_layouts,
+        bind_group_layouts,
         push_constant_ranges: &[],
     })
 }

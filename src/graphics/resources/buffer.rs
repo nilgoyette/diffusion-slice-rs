@@ -1,18 +1,30 @@
 use glam::{vec2, UVec2, Vec2};
 use wgpu::{Buffer, BufferUsages, Device};
 
-use super::{vertex::ImageVertex, Client, Texture};
+use crate::graphics::{
+    resources::{vertex::ImageVertex, Texture},
+    Client, Context,
+};
 
-pub fn create_image_vertex_buffer(size: UVec2, client: &Client) -> Buffer {
+pub fn init_image_vertex_buffer(client: &Client) -> Buffer {
     use wgpu::util::{BufferInitDescriptor, DeviceExt};
-
-    let uv_offset = uv_offset(size, client.img_size);
 
     client.device.create_buffer_init(&BufferInitDescriptor {
         label: label!("ImageVertexBuffer"),
-        contents: bytemuck::cast_slice(&quad_vertices(uv_offset)),
-        usage: BufferUsages::VERTEX,
+        contents: bytemuck::cast_slice(&quad_vertices(Vec2::ZERO)),
+        usage: BufferUsages::VERTEX | BufferUsages::COPY_DST,
     })
+}
+
+impl Context {
+    pub fn set_image_vertices(&self, size: UVec2) {
+        let vertices = quad_vertices(uv_offset(size, self.client.img_size));
+        let bytes = bytemuck::cast_slice(&vertices);
+
+        self.client
+            .command_queue
+            .write_buffer(&self.res.image_vertex_buffer, 0, bytes);
+    }
 }
 
 /// Calculates the UV offset needed to maintain the source image's aspect ratio
@@ -51,7 +63,7 @@ pub fn create_transfer_buffer(texture: &Texture, device: &Device) -> Buffer {
     device.create_buffer(&wgpu::BufferDescriptor {
         label: label!("TransferBuffer"),
         size: texture.bytes_stride as u64 * texture.size.height as u64,
-        usage: BufferUsages::COPY_DST | BufferUsages::MAP_READ,
+        usage: BufferUsages::MAP_READ | BufferUsages::COPY_DST,
         mapped_at_creation: false,
     })
 }

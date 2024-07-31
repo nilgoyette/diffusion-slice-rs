@@ -1,4 +1,4 @@
-use crate::{Image, ImageSlice, UserInputs};
+use crate::{ContextInputs, Image, ImageSlice};
 use {client::Client, pipeline::Pipelines, resources::Resources};
 
 #[macro_use]
@@ -9,16 +9,16 @@ mod pipeline;
 mod resources;
 mod workload;
 
-struct Context {
+pub struct Context {
     client: Client,
     res: Resources,
     pipelines: Pipelines,
 }
 
-impl<'a> Context {
-    async fn new(inputs: &UserInputs<'a>) -> Self {
-        let client = Client::new(inputs).await;
-        let res = Resources::new(&inputs.src_img, &client);
+impl Context {
+    pub fn new(inputs: &ContextInputs) -> Self {
+        let client = pollster::block_on(Client::new(inputs));
+        let res = Resources::new(&client);
 
         Self {
             pipelines: Pipelines::new(&res, &client),
@@ -26,8 +26,8 @@ impl<'a> Context {
             client,
         }
     }
-}
 
-pub fn run_full_pipeline(inputs: &UserInputs) -> Image {
-    pollster::block_on(Context::new(inputs)).execute_workloads()
+    pub fn process_slice(&mut self, image: &ImageSlice) -> Image {
+        self.execute_workloads(image)
+    }
 }

@@ -2,14 +2,14 @@ use std::marker::PhantomData;
 
 use wgpu::{BlendState, ColorTargetState, ColorWrites, TextureFormat};
 
-use super::{triangle_primitive, Binding, PipelineState};
+use super::{triangle_primitive, PipelineState};
 use crate::graphics::resources::vertex::ImageVertex;
 
-pub fn state(color_format: TextureFormat, binding: &Binding) -> PipelineState<ImageVertex> {
+pub fn state<'a>(color_format: TextureFormat) -> PipelineState<'a, ImageVertex> {
     PipelineState {
         name: "Resampling",
         shader_code: include_str!("shaders/resampling.wgsl"),
-        bindings: vec![binding],
+        bind_layouts: vec!["Source"],
         color_target: color_target(color_format),
         depth_stencil: None,
         primitive: triangle_primitive(),

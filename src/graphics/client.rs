@@ -1,7 +1,7 @@
 use glam::UVec2;
 use wgpu::{Adapter, Device, Queue};
 
-use super::UserInputs;
+use super::ContextInputs;
 use crate::graphics::resources::COLOR_FORMAT;
 
 /// Stores handlers related to the user environment
@@ -12,8 +12,8 @@ pub struct Client {
     pub multisample_count: u32,
 }
 
-impl<'a> Client {
-    pub async fn new(inputs: &UserInputs<'a>) -> Self {
+impl Client {
+    pub async fn new(inputs: &ContextInputs) -> Self {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let adapter = adapter(&instance).await;
 
