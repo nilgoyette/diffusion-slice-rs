@@ -1,20 +1,23 @@
-use glam::UVec2;
-use wgpu::Buffer;
+use std::collections::HashMap;
 
-use super::{Client, ImageSlice};
+use wgpu::{BindGroupLayout, Buffer};
 
-pub use {
-    binding::Binding,
-    texture::{Texture, COLOR_FORMAT},
-};
+use super::Client;
 
-mod binding;
+pub use texture::{Texture, COLOR_FORMAT};
+
+pub mod bind {
+    pub mod group;
+    pub(super) mod layout;
+}
 mod buffer;
 mod texture;
 pub mod vertex;
 
+type BindLayouts = HashMap<String, BindGroupLayout>;
+
 pub struct Resources {
-    pub binding: Binding,
+    pub bind_layouts: BindLayouts,
 
     pub multisampled_texture: Texture,
     pub target_texture: Texture,
@@ -24,16 +27,17 @@ pub struct Resources {
 }
 
 impl Resources {
-    pub fn new(image: &ImageSlice, client: &Client) -> Self {
-        let target_texture = Texture::new_target(client);
-        let source_texture = Texture::new_source(image, client);
+    pub fn new(client: &Client) -> Self {
+        let device = &client.device;
 
-        let img_size = UVec2::new(image.dim().0 as u32, image.dim().1 as u32);
+        let target_texture = Texture::new_target(client);
 
         Self {
-            binding: Binding::new(&source_texture, &client.device),
-
-            image_vertex_buffer: buffer::create_image_vertex_buffer(img_size, client),
+            bind_layouts: HashMap::from([
+                ("Source".to_string(), bind::layout::source(device)),
+                ("Transform".to_string(), bind::layout::transform(device)),
+            ]),
+            image_vertex_buffer: buffer::init_image_vertex_buffer(client),
             transfer_buffer: buffer::create_transfer_buffer(&target_texture, &client.device),
 
             multisampled_texture: Texture::new_multisampled(client),

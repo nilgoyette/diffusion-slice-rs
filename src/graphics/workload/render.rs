@@ -1,16 +1,24 @@
 use wgpu::{CommandEncoder, Operations};
 
-use crate::graphics::{Context, Resources};
+use crate::{
+    graphics::{
+        resources::{bind, Resources},
+        Context,
+    },
+    Image, ImageSlice,
+};
 
 impl Context {
-    pub(super) fn render(&self, command_encoder: &mut CommandEncoder) {
-        let mut pass = render_pass(&self.res, command_encoder);
+    pub(super) fn render_slice(&self, image: &ImageSlice, command_encoder: &mut CommandEncoder) {
+        let source_bind_group = bind::group::source(image, &self);
+        {
+            let mut pass = render_pass(&self.res, command_encoder);
+            pass.set_bind_group(0, &source_bind_group, &[]);
 
-        pass.set_bind_group(0, &self.res.binding.group, &[]);
-
-        pass.set_pipeline(&self.pipelines.resampling);
-        pass.set_vertex_buffer(0, self.res.image_vertex_buffer.slice(..));
-        pass.draw(0..6, 0..1);
+            pass.set_pipeline(&self.pipelines.resampling);
+            pass.set_vertex_buffer(0, self.res.image_vertex_buffer.slice(..));
+            pass.draw(0..6, 0..1);
+        }
 
         // TODO self.render_lines()
         // TODO self.post_process()
