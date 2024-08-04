@@ -10,8 +10,8 @@ use crate::{
 
 impl Context {
     pub(super) fn render_slice(&self, image: &ImageSlice, command_encoder: &mut CommandEncoder) {
-        let source_bind_group = bind::group::source(image, &self);
-        let transform_bind_group = bind::group::transform(&self);
+        let source_bind_group = bind::group::source(image, self);
+        let transform_bind_group = bind::group::transform(self);
         {
             let mut pass = render_pass(&self.res, command_encoder);
 

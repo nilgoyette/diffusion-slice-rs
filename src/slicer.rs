@@ -64,12 +64,12 @@ pub struct Slice {
     pub data: ImageSlice,
     pub view: View,
     pub index: usize,
-    pub depth: f32,
+    pub _depth: f32,
 }
 
 pub struct Slicer {
-    pub header: NiftiHeader,
-    pub spacing: Spacing,
+    pub _header: NiftiHeader,
+    pub _spacing: Spacing,
     pub slices: Vec<Slice>,
 }
 
@@ -111,14 +111,14 @@ impl Slicer {
                     data: data_c,
                     view,
                     index: idx,
-                    depth: 0.0, // TODO Spacing * index
+                    _depth: 0.0, // TODO Spacing * index
                 });
             }
         }
 
         Slicer {
-            header,
-            spacing,
+            _header: header,
+            _spacing: spacing,
             slices,
         }
     }

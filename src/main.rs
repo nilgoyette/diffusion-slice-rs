@@ -49,23 +49,6 @@ fn main() {
     let (nifti_header, data) = read_3d_image::<_, f32>(args.input_image);
     let fibers_reader = args.fibers.map(|path| fibers_reader(path, &nifti_header));
 
-    // reader
-    //     .streamlines()
-    //     .iter()
-    //     .map(|streamline| streamline.iter().map(|p| vec3(p.x, p.y, p.z)).collect())
-    //     .collect()
-
-    // let mut streamlines = vec![];
-    // streamlines.push(vec![
-    //     vec3(-0.75, -0.75, 0.),
-    //     vec3(0., -0.5, 0.),
-    //     vec3(0.75, -0.75, 0.),
-    // ]);
-    // streamlines.push(vec![
-    //     vec3(-0.75, 0.75, 0.),
-    //     vec3(0., 0.5, 0.),
-    //     vec3(0.75, 0.75, 0.),
-    // ]);
     let slicer = Slicer::from_3d(nifti_header, data, 3, &args.views, (0.3, 0.7));
 
     let inputs = ContextInputs {

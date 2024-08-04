@@ -21,7 +21,7 @@ pub fn init_image_vertex_buffer(device: &Device) -> Buffer {
 pub fn init_vertices<V: Pod>(name: &str, vertices: &[V], device: &Device) -> Buffer {
     device.create_buffer_init(&BufferInitDescriptor {
         label: label!("{name}VertexBuffer"),
-        contents: bytemuck::cast_slice(&vertices),
+        contents: bytemuck::cast_slice(vertices),
         usage: BufferUsages::VERTEX,
     })
 }
@@ -29,7 +29,7 @@ pub fn init_vertices<V: Pod>(name: &str, vertices: &[V], device: &Device) -> Buf
 pub fn init_indices(name: &str, indices: &[u32], device: &Device) -> Buffer {
     device.create_buffer_init(&BufferInitDescriptor {
         label: label!("{name}IndexBuffer"),
-        contents: bytemuck::cast_slice(&indices),
+        contents: bytemuck::cast_slice(indices),
         usage: BufferUsages::INDEX,
     })
 }
@@ -79,7 +79,7 @@ fn quad_vertices(uv_offset: Vec2) -> [ImageVertex; 6] {
     let (nu, pu) = (0. - du, 1. + du);
     let (nv, pv) = (0. - dv, 1. + dv);
     [
-        vertex(1., 1., nu, 1. + dv),
+        vertex(1., 1., nu, pv),
         vertex(1., -1., nu, nv),
         vertex(-1., -1., pu, nv),
         vertex(1., 1., nu, pv),
