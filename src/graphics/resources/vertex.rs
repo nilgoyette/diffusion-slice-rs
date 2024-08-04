@@ -22,7 +22,7 @@ where
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, Pod, Zeroable, Debug)]
+#[derive(Copy, Clone, Pod, Zeroable)]
 pub struct ImageVertex {
     pub canon: Vec2,
     pub uv: Vec2,
@@ -36,7 +36,7 @@ impl Vertex for ImageVertex {
 
 /// This `struct` uses `nalgebra` types to avoid unnecessary conversions.
 #[repr(C)]
-#[derive(Copy, Clone, Pod, Zeroable, Debug)]
+#[derive(Copy, Clone, Pod, Zeroable)]
 pub struct FiberVertex {
     pub position: Point3<f32>,
     pub direction: Vector3<f32>,

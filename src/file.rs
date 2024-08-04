@@ -37,7 +37,7 @@ where
     let dyn_data = volume.into_ndarray::<T>().unwrap();
     let data = dyn_data
         .into_dimensionality::<Ix3>()
-        .expect("Loaded NIfTI image is a 3D array");
+        .expect("Loaded NIfTI image must be a 3D array");
     (header, data)
 }
 
@@ -47,11 +47,11 @@ pub fn fibers_reader<P: AsRef<Path>>(path: P, nifti_header: &NiftiHeader) -> Rea
     if !path.exists() {
         panic!("Fibers {path:?} doesn't exist.");
     }
-    let dims = &nifti_header.pixdim;
+    let dim = &nifti_header.pixdim;
 
     Reader::new(path)
         .expect("The path exists")
-        .to_voxel_space(Vector3::new(dims[1], dims[2], dims[3]))
+        .to_voxel_space(Vector3::new(dim[1], dim[2], dim[3]))
 }
 
 pub fn save_image(img: Image, output_path: &Path) {
