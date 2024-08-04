@@ -1,4 +1,4 @@
-use wgpu::{BindGroup, BindingResource, Buffer, Device};
+use wgpu::{BindGroup, BindingResource, Device};
 
 use crate::graphics::{resources::Texture, Context, ImageSlice};
 
@@ -13,9 +13,9 @@ pub fn source(image: &ImageSlice, ctx: &Context) -> BindGroup {
     create_bind_group("Source", entries, ctx)
 }
 
-pub fn transform(transform_buffer: Buffer, ctx: &Context) -> BindGroup {
-    let entries = vec![transform_buffer.as_entire_binding()];
-    create_bind_group("Source", entries, ctx)
+pub fn transform(ctx: &Context) -> BindGroup {
+    let entries = vec![ctx.res.transform.as_entire_binding()];
+    create_bind_group("Transform", entries, ctx)
 }
 
 fn create_sampler(device: &Device) -> wgpu::Sampler {

@@ -1,7 +1,9 @@
 use std::path::Path;
 
+use nalgebra::Vector3;
 use ndarray::{Array3, Ix3};
 use nifti::{DataElement, InMemNiftiVolume, IntoNdArray, NiftiHeader, NiftiObject, ReaderOptions};
+use trk_io::Reader;
 
 use crate::Image;
 
@@ -21,7 +23,7 @@ where
     let nifti_object = ReaderOptions::new()
         .fix_header(true)
         .read_file(path)
-        .expect("NIfTI file should be readable and valid.");
+        .expect("NIfTI file has a valid and readable format.");
     let mut header = nifti_object.header().clone();
     let mut volume = nifti_object.into_volume();
 
@@ -35,8 +37,21 @@ where
     let dyn_data = volume.into_ndarray::<T>().unwrap();
     let data = dyn_data
         .into_dimensionality::<Ix3>()
-        .expect("Loaded NIfTI image should be a 3D array");
+        .expect("Loaded NIfTI image is a 3D array");
     (header, data)
+}
+
+/// Creates a TrackVis file reader for further data mapping.
+pub fn fibers_reader<P: AsRef<Path>>(path: P, nifti_header: &NiftiHeader) -> Reader {
+    let path = path.as_ref();
+    if !path.exists() {
+        panic!("Fibers {path:?} doesn't exist.");
+    }
+    let dims = &nifti_header.pixdim;
+
+    Reader::new(path)
+        .expect("The path exists")
+        .to_voxel_space(Vector3::new(dims[1], dims[2], dims[3]))
 }
 
 pub fn save_image(img: Image, output_path: &Path) {

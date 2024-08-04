@@ -1,47 +1,27 @@
-use std::marker::PhantomData;
-
-use wgpu::{
-    BindGroupLayout, ColorTargetState, DepthStencilState, Device, PrimitiveState, RenderPipeline,
-};
+use wgpu::{BindGroupLayout, ColorTargetState, Device, RenderPipeline};
 
 use super::{
-    resources::{vertex::Vertex, Resources},
+    resources::{vertex::Vertex, Resources, COLOR_FORMAT, DEPTH_FORMAT},
     Client,
 };
 
-mod resampling;
+use state::PipelineState;
+
+mod state;
 
 pub struct Pipelines {
     pub resampling: RenderPipeline,
-    // pub lines: RenderPipeline,
+    pub streamline: RenderPipeline,
     // pub post_processing: RenderPipeline,
 }
 
 impl Pipelines {
     pub fn new(res: &Resources, client: &Client) -> Self {
-        let fmt = res.target_texture.format;
-
         Self {
-            resampling: create_pipeline(resampling::state(fmt), res, client),
+            resampling: create_pipeline(state::resampling(), res, client),
+            streamline: create_pipeline(state::streamline(), res, client),
         }
     }
-}
-
-pub struct PipelineState<'a, V: Vertex> {
-    pub name: &'a str,
-
-    /// WGSL code. Generally included with `include_str!(...)`
-    pub shader_code: &'a str,
-
-    pub bind_layouts: Vec<&'a str>,
-
-    pub color_target: ColorTargetState,
-    pub depth_stencil: Option<DepthStencilState>,
-    pub primitive: PrimitiveState,
-
-    pub alpha_to_coverage: bool,
-
-    pub _vertex_type: PhantomData<V>,
 }
 
 fn create_pipeline<V: Vertex>(
@@ -62,17 +42,17 @@ fn create_pipeline<V: Vertex>(
     let fragment_state = wgpu::FragmentState {
         module,
         entry_point: "fragment",
-        targets: &[Some(state.color_target)],
+        targets: &[Some(color_target())],
         compilation_options: Default::default(),
     };
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: label!("{}Pipeline", state.name),
-        layout: Some(&layout(state.name, state.bind_layouts, res, device)),
+        layout: Some(&layout(state.name, state.bindings, res, device)),
         vertex: vertex_state,
         fragment: Some(fragment_state),
         primitive: state.primitive,
-        depth_stencil: state.depth_stencil,
-        multisample: multisample(client.multisample_count, state.alpha_to_coverage),
+        depth_stencil: Some(depth_stencil(state.use_depth_test)),
+        multisample: multisample(client.multisample_count),
         multiview: None,
     })
 }
@@ -102,20 +82,33 @@ fn layout(
     })
 }
 
-fn multisample(count: u32, alpha_to_coverage_enabled: bool) -> wgpu::MultisampleState {
-    wgpu::MultisampleState {
-        count,
-        mask: !0,
-        alpha_to_coverage_enabled,
+fn color_target() -> ColorTargetState {
+    ColorTargetState {
+        format: COLOR_FORMAT,
+        blend: Some(wgpu::BlendState::REPLACE),
+        write_mask: wgpu::ColorWrites::ALL,
     }
 }
 
-fn triangle_primitive() -> PrimitiveState {
-    PrimitiveState {
-        topology: wgpu::PrimitiveTopology::TriangleList,
-        front_face: wgpu::FrontFace::Ccw,
-        polygon_mode: wgpu::PolygonMode::Fill,
-        cull_mode: Some(wgpu::Face::Front),
-        ..Default::default()
+fn depth_stencil(active: bool) -> wgpu::DepthStencilState {
+    let depth_compare = if active {
+        wgpu::CompareFunction::Less
+    } else {
+        wgpu::CompareFunction::Always
+    };
+    wgpu::DepthStencilState {
+        format: DEPTH_FORMAT,
+        depth_write_enabled: active,
+        depth_compare,
+        stencil: wgpu::StencilState::default(),
+        bias: wgpu::DepthBiasState::default(),
+    }
+}
+
+fn multisample(count: u32) -> wgpu::MultisampleState {
+    wgpu::MultisampleState {
+        count,
+        mask: !0,
+        alpha_to_coverage_enabled: false,
     }
 }

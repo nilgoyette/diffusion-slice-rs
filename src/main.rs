@@ -1,18 +1,17 @@
 use std::{path::PathBuf, time::Instant};
 
 use clap::Parser;
-use file::read_3d_image;
-use glam::{uvec2, vec3, UVec2, Vec3};
-use nalgebra::Vector3;
-use slicer::{ImageSlice, Slicer, View};
+use glam::{uvec2, UVec2};
 use trk_io::Reader;
+
+use file::{fibers_reader, read_3d_image};
+use slicer::{ImageSlice, Slicer, View};
 
 mod file;
 mod graphics;
 mod slicer;
 
 type Image = image::RgbaImage;
-type Polyline = Vec<Vec3>;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -37,7 +36,7 @@ struct Args {
 }
 
 pub struct ContextInputs {
-    pub streamlines: Vec<Polyline>,
+    pub fibers_reader: Option<Reader>,
     pub dst_img_size: UVec2,
 }
 
@@ -46,31 +45,34 @@ fn main() {
     init_logger();
 
     let args = Args::parse();
-    let (nifti_header, data) = read_3d_image::<_, f32>(args.input_image);
 
-    let streamlines: Vec<Polyline> = match args.fibers {
-        Some(path) => {
-            let spacing = Vector3::new(
-                nifti_header.pixdim[1],
-                nifti_header.pixdim[2],
-                nifti_header.pixdim[3],
-            );
-            let mut reader = Reader::new(path).unwrap().to_voxel_space(spacing);
-            reader
-                .streamlines()
-                .iter()
-                .map(|streamline| streamline.iter().map(|p| vec3(p.x, p.y, p.z)).collect())
-                .collect()
-        }
-        None => vec![],
-    };
+    let (nifti_header, data) = read_3d_image::<_, f32>(args.input_image);
+    let fibers_reader = args.fibers.map(|path| fibers_reader(path, &nifti_header));
+
+    // reader
+    //     .streamlines()
+    //     .iter()
+    //     .map(|streamline| streamline.iter().map(|p| vec3(p.x, p.y, p.z)).collect())
+    //     .collect()
+
+    // let mut streamlines = vec![];
+    // streamlines.push(vec![
+    //     vec3(-0.75, -0.75, 0.),
+    //     vec3(0., -0.5, 0.),
+    //     vec3(0.75, -0.75, 0.),
+    // ]);
+    // streamlines.push(vec![
+    //     vec3(-0.75, 0.75, 0.),
+    //     vec3(0., 0.5, 0.),
+    //     vec3(0.75, 0.75, 0.),
+    // ]);
     let slicer = Slicer::from_3d(nifti_header, data, 3, &args.views, (0.3, 0.7));
 
     let inputs = ContextInputs {
-        streamlines,
+        fibers_reader,
         dst_img_size: uvec2(args.output_size[0], args.output_size[1]),
     };
-    let mut graphics = graphics::Context::new(&inputs);
+    let mut graphics = graphics::Context::new(inputs);
 
     for slice in slicer.slices {
         let image = graphics.process_slice(&slice.data);
