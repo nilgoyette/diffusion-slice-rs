@@ -11,15 +11,20 @@ mod state;
 
 pub struct Pipelines {
     pub resampling: RenderPipeline,
-    pub streamline: RenderPipeline,
+    pub streamline: Option<RenderPipeline>,
     // pub post_processing: RenderPipeline,
 }
 
 impl Pipelines {
     pub fn new(res: &Resources, client: &Client) -> Self {
+        let streamline = if res.fibers.is_some() {
+            Some(create_pipeline(state::streamline(), res, client))
+        } else {
+            None
+        };
         Self {
             resampling: create_pipeline(state::resampling(), res, client),
-            streamline: create_pipeline(state::streamline(), res, client),
+            streamline,
         }
     }
 }

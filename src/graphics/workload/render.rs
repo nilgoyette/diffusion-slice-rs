@@ -11,7 +11,7 @@ use crate::{
 impl Context {
     pub(super) fn render_slice(&self, image: &ImageSlice, command_encoder: &mut CommandEncoder) {
         let source_bind_group = bind::group::source(image, self);
-        let transform_bind_group = bind::group::transform(self);
+        let transform_bind_group;
         {
             let mut pass = render_pass(&self.res, command_encoder);
 
@@ -24,9 +24,16 @@ impl Context {
 
             // Streamline
             if let Some(fibers) = &self.res.fibers {
+                transform_bind_group = bind::group::transform(self);
                 pass.set_bind_group(0, &transform_bind_group, &[]);
 
-                pass.set_pipeline(&self.pipelines.streamline);
+                let pipeline = &self
+                    .pipelines
+                    .streamline
+                    .as_ref()
+                    .expect("Streamline pipeline is defined alongside fibers resources");
+
+                pass.set_pipeline(pipeline);
                 pass.set_vertex_buffer(0, fibers.vertices.slice(..));
                 pass.set_index_buffer(fibers.indices.slice(..), wgpu::IndexFormat::Uint32);
                 pass.draw_indexed(0..fibers.index_count, 0, 0..1);
