@@ -17,11 +17,11 @@ pub struct Pipelines {
 
 impl Pipelines {
     pub fn new(res: &Resources, client: &Client) -> Self {
-        let streamline = if res.fibers.is_some() {
-            Some(create_pipeline(state::streamline(), res, client))
-        } else {
-            None
-        };
+        let streamline = res
+            .fibers
+            .as_ref()
+            .map(|_| create_pipeline(state::streamline(), res, client));
+
         Self {
             resampling: create_pipeline(state::resampling(), res, client),
             streamline,

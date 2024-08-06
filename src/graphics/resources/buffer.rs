@@ -76,6 +76,7 @@ fn quad_vertices(uv_offset: Vec2) -> [ImageVertex; 6] {
         canon: vec2(x, y),
         uv: vec2(u, v),
     };
+    // (n)egative and (p)ositive
     let (nu, pu) = (0. - du, 1. + du);
     let (nv, pv) = (0. - dv, 1. + dv);
     [

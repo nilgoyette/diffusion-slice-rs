@@ -47,11 +47,11 @@ pub fn fibers_reader<P: AsRef<Path>>(path: P, nifti_header: &NiftiHeader) -> Rea
     if !path.exists() {
         panic!("Fibers {path:?} doesn't exist.");
     }
-    let dim = &nifti_header.pixdim;
+    let pixdim = &nifti_header.pixdim;
 
     Reader::new(path)
         .expect("The path exists")
-        .to_voxel_space(Vector3::new(dim[1], dim[2], dim[3]))
+        .to_voxel_space(Vector3::new(pixdim[1], pixdim[2], pixdim[3]))
 }
 
 pub fn save_image(img: Image, output_path: &Path) {
