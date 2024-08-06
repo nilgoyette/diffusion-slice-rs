@@ -1,4 +1,4 @@
-use glam::uvec2;
+use glam::{uvec2, Mat4};
 use wgpu::CommandEncoder;
 
 use super::{Context, Image, ImageSlice};
@@ -12,6 +12,10 @@ impl Context {
         {
             let (width, height) = image.dim();
             self.set_image_vertices(uvec2(width as u32, height as u32));
+
+            let (width, height) = (width as f32, height as f32);
+            let projection = Mat4::orthographic_lh(0., width, 0., height, 0.01, 1000.);
+            self.set_transform(projection);
         }
         self.render_slice(image, &mut command_encoder);
         self.copy_target_to_buffer(&mut command_encoder);

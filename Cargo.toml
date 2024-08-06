@@ -10,7 +10,7 @@ env_logger = "0.11" # Logging client
 glam = { version = "0.27", features = ["bytemuck"] } # Fast math types
 image = "0.25" # Image encoders/decoders 
 log = "0.4" # Logging API
-nalgebra = "0.32"
+nalgebra = { version = "0.32", features = ["bytemuck"] } # Math types of trk-io
 ndarray = "0.15"
 nifti = { version = "0.16", features = ["ndarray_volumes", "nalgebra_affine"] }
 pollster = "0.3" # Async runtime

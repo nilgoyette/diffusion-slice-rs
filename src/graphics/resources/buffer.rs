@@ -1,18 +1,36 @@
-use glam::{vec2, UVec2, Vec2};
-use wgpu::{Buffer, BufferUsages, Device};
+use bytemuck::Pod;
+use glam::{vec2, Mat4, UVec2, Vec2};
+use wgpu::{
+    util::{BufferInitDescriptor, DeviceExt},
+    Buffer, BufferUsages, Device,
+};
 
 use crate::graphics::{
     resources::{vertex::ImageVertex, Texture},
-    Client, Context,
+    Context,
 };
 
-pub fn init_image_vertex_buffer(client: &Client) -> Buffer {
-    use wgpu::util::{BufferInitDescriptor, DeviceExt};
-
-    client.device.create_buffer_init(&BufferInitDescriptor {
+pub fn init_image_vertex_buffer(device: &Device) -> Buffer {
+    device.create_buffer_init(&BufferInitDescriptor {
         label: label!("ImageVertexBuffer"),
         contents: bytemuck::cast_slice(&quad_vertices(Vec2::ZERO)),
         usage: BufferUsages::VERTEX | BufferUsages::COPY_DST,
+    })
+}
+
+pub fn init_vertices<V: Pod>(name: &str, vertices: &[V], device: &Device) -> Buffer {
+    device.create_buffer_init(&BufferInitDescriptor {
+        label: label!("{name}VertexBuffer"),
+        contents: bytemuck::cast_slice(vertices),
+        usage: BufferUsages::VERTEX,
+    })
+}
+
+pub fn init_indices(name: &str, indices: &[u32], device: &Device) -> Buffer {
+    device.create_buffer_init(&BufferInitDescriptor {
+        label: label!("{name}IndexBuffer"),
+        contents: bytemuck::cast_slice(indices),
+        usage: BufferUsages::INDEX,
     })
 }
 
@@ -23,7 +41,16 @@ impl Context {
 
         self.client
             .command_queue
-            .write_buffer(&self.res.image_vertex_buffer, 0, bytes);
+            .write_buffer(&self.res.image_vertices, 0, bytes);
+    }
+
+    pub fn set_transform(&self, transform: Mat4) {
+        let transform = &[transform];
+        let bytes = bytemuck::cast_slice(transform);
+
+        self.client
+            .command_queue
+            .write_buffer(&self.res.transform, 0, bytes);
     }
 }
 
@@ -49,21 +76,32 @@ fn quad_vertices(uv_offset: Vec2) -> [ImageVertex; 6] {
         canon: vec2(x, y),
         uv: vec2(u, v),
     };
+    // (n)egative and (p)ositive
+    let (nu, pu) = (0. - du, 1. + du);
+    let (nv, pv) = (0. - dv, 1. + dv);
     [
-        vertex(1., 1., 0. - du, 1. + dv),
-        vertex(1., -1., 0. - du, 0. - dv),
-        vertex(-1., -1., 1. + du, 0. - dv),
-        vertex(1., 1., 0. - du, 1. + dv),
-        vertex(-1., -1., 1. + du, 0. - dv),
-        vertex(-1., 1., 1. + du, 1. + dv),
+        vertex(1., 1., nu, pv),
+        vertex(1., -1., nu, nv),
+        vertex(-1., -1., pu, nv),
+        vertex(1., 1., nu, pv),
+        vertex(-1., -1., pu, nv),
+        vertex(-1., 1., pu, pv),
     ]
 }
 
 pub fn create_transfer_buffer(texture: &Texture, device: &Device) -> Buffer {
     device.create_buffer(&wgpu::BufferDescriptor {
         label: label!("TransferBuffer"),
-        size: texture.bytes_stride as u64 * texture.size.height as u64,
+        size: texture.bytes_stride as u64 * texture.inner.size().height as u64,
         usage: BufferUsages::MAP_READ | BufferUsages::COPY_DST,
         mapped_at_creation: false,
+    })
+}
+
+pub fn create_transform(transform: Mat4, device: &Device) -> Buffer {
+    device.create_buffer_init(&BufferInitDescriptor {
+        label: label!("TransformUniformBuffer"),
+        contents: bytemuck::cast_slice(&[transform]),
+        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
     })
 }

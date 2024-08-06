@@ -16,9 +16,9 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(inputs: &ContextInputs) -> Self {
-        let client = pollster::block_on(Client::new(inputs));
-        let res = Resources::new(&client);
+    pub fn new(inputs: ContextInputs) -> Self {
+        let client = pollster::block_on(Client::new(&inputs));
+        let res = Resources::new(inputs.fibers_reader, &client);
 
         Self {
             pipelines: Pipelines::new(&res, &client),

@@ -13,7 +13,7 @@ impl Context {
         command_encoder.copy_texture_to_buffer(
             texture.image_copy(),
             copy_buffer,
-            self.res.target_texture.size,
+            self.res.target_texture.inner.size(),
         );
     }
 
