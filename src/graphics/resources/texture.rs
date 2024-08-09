@@ -5,6 +5,7 @@ use crate::graphics::{Client, ImageSlice};
 
 pub const GRAY_FORMAT: TextureFormat = TextureFormat::R8Unorm;
 pub const COLOR_FORMAT: TextureFormat = TextureFormat::Rgba8Unorm;
+pub const DEPTH_FORMAT: TextureFormat = TextureFormat::Depth32Float;
 
 struct TextureConfig {
     name: String,
@@ -20,8 +21,6 @@ struct TextureConfig {
 pub struct Texture {
     pub inner: wgpu::Texture,
     pub view: wgpu::TextureView,
-    pub format: TextureFormat,
-    pub size: Extent3d,
 
     pub bytes_stride: u32,
     pub bytes_padding: u32,
@@ -35,8 +34,6 @@ impl Texture {
         Self {
             view: view(&texture),
             inner: texture,
-            format: cfg.format,
-            size: cfg.size,
 
             bytes_stride,
             bytes_padding,
@@ -70,6 +67,18 @@ impl Texture {
         Self::new(cfg, client)
     }
 
+    pub fn new_depth(client: &Client) -> Self {
+        let cfg = TextureConfig {
+            name: "Depth".to_string(),
+            usage: TextureUsages::RENDER_ATTACHMENT,
+            format: DEPTH_FORMAT,
+            size: extent(client.img_size),
+            multisampled: true,
+            pad_bytes_per_row: false,
+        };
+        Self::new(cfg, client)
+    }
+
     pub fn new_target(client: &Client) -> Self {
         let cfg = TextureConfig {
             name: "Target".to_string(),
@@ -84,7 +93,12 @@ impl Texture {
 
     fn send_image(&self, image: &ImageSlice, command_queue: &Queue) {
         let bytes = image.as_slice_memory_order().unwrap();
-        command_queue.write_texture(self.image_copy(), bytes, self.data_layout(), self.size);
+        command_queue.write_texture(
+            self.image_copy(),
+            bytes,
+            self.data_layout(),
+            self.inner.size(),
+        );
     }
 
     pub fn image_copy(&self) -> ImageCopyTexture {
