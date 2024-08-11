@@ -1,4 +1,7 @@
-use wgpu::{BindGroupLayout, ColorTargetState, Device, RenderPipeline};
+use wgpu::{
+    BindGroupLayout, ColorTargetState, CompareFunction, DepthStencilState, Device,
+    MultisampleState, RenderPipeline,
+};
 
 use super::{
     resources::{vertex::Vertex, Resources, COLOR_FORMAT, DEPTH_FORMAT},
@@ -17,11 +20,11 @@ pub struct Pipelines {
 
 impl Pipelines {
     pub fn new(res: &Resources, client: &Client) -> Self {
-        let streamline = res
-            .fibers
-            .as_ref()
-            .map(|_| create_pipeline(state::streamline(), res, client));
-
+        let streamline = if !res.fibers.is_empty() {
+            Some(create_pipeline(state::streamline(), res, client))
+        } else {
+            None
+        };
         Self {
             resampling: create_pipeline(state::resampling(), res, client),
             streamline,
@@ -95,13 +98,13 @@ fn color_target() -> ColorTargetState {
     }
 }
 
-fn depth_stencil(active: bool) -> wgpu::DepthStencilState {
+fn depth_stencil(active: bool) -> DepthStencilState {
     let depth_compare = if active {
-        wgpu::CompareFunction::Less
+        CompareFunction::LessEqual
     } else {
-        wgpu::CompareFunction::Always
+        CompareFunction::Always
     };
-    wgpu::DepthStencilState {
+    DepthStencilState {
         format: DEPTH_FORMAT,
         depth_write_enabled: active,
         depth_compare,
@@ -110,8 +113,8 @@ fn depth_stencil(active: bool) -> wgpu::DepthStencilState {
     }
 }
 
-fn multisample(count: u32) -> wgpu::MultisampleState {
-    wgpu::MultisampleState {
+fn multisample(count: u32) -> MultisampleState {
+    MultisampleState {
         count,
         mask: !0,
         alpha_to_coverage_enabled: false,

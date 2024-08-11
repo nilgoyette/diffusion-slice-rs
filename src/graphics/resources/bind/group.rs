@@ -1,9 +1,11 @@
-use wgpu::{BindGroup, BindingResource, Device};
+use wgpu::{
+    AddressMode, BindGroup, BindGroupEntry, BindingResource, FilterMode, SamplerBorderColor,
+};
 
-use crate::graphics::{resources::Texture, Context, ImageSlice};
+use crate::graphics::{resources::Texture, Client, Context, ImageSlice};
 
 pub fn source(image: &ImageSlice, ctx: &Context) -> BindGroup {
-    let sampler = create_sampler(&ctx.client.device);
+    let sampler = create_sampler(&ctx.client);
     let source_texture = Texture::new_source(image, &ctx.client);
 
     let entries = vec![
@@ -18,21 +20,23 @@ pub fn transform(ctx: &Context) -> BindGroup {
     create_bind_group("Transform", entries, ctx)
 }
 
-fn create_sampler(device: &Device) -> wgpu::Sampler {
-    use wgpu::{AddressMode, FilterMode};
-
-    device.create_sampler(&wgpu::SamplerDescriptor {
-        address_mode_u: AddressMode::ClampToEdge,
-        address_mode_v: AddressMode::ClampToEdge,
+fn create_sampler(client: &Client) -> wgpu::Sampler {
+    let border_color = if client.white_mode {
+        SamplerBorderColor::OpaqueWhite
+    } else {
+        SamplerBorderColor::OpaqueBlack
+    };
+    client.device.create_sampler(&wgpu::SamplerDescriptor {
+        address_mode_u: AddressMode::ClampToBorder,
+        address_mode_v: AddressMode::ClampToBorder,
         mag_filter: FilterMode::Linear,
         min_filter: FilterMode::Linear,
+        border_color: Some(border_color),
         ..Default::default()
     })
 }
 
 fn create_bind_group(key: &str, entries: Vec<BindingResource>, ctx: &Context) -> BindGroup {
-    use wgpu::BindGroupEntry;
-
     let entries: Vec<BindGroupEntry> = entries
         .into_iter()
         .enumerate()

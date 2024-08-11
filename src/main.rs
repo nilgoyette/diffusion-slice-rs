@@ -19,9 +19,17 @@ struct Args {
     /// Input NIfTI image
     pub input_image: PathBuf,
 
+    /// Use a white background instead of black
+    #[arg(short, long, default_value = "false")]
+    pub white: bool,
+
     /// Output folder to save all png
     #[arg(short, long)]
     pub fibers: Option<PathBuf>,
+
+    /// How many streamlines are batched per buffer
+    #[arg(short, long, default_value = "50000")]
+    pub batch_size: usize,
 
     /// Output folder to save all png
     pub output: PathBuf,
@@ -38,6 +46,8 @@ struct Args {
 pub struct ContextInputs {
     pub fibers_reader: Option<Reader>,
     pub dst_img_size: UVec2,
+    pub streamline_batch_size: usize,
+    pub white_mode: bool,
 }
 
 fn main() {
@@ -54,6 +64,8 @@ fn main() {
     let inputs = ContextInputs {
         fibers_reader,
         dst_img_size: uvec2(args.output_size[0], args.output_size[1]),
+        streamline_batch_size: args.batch_size,
+        white_mode: args.white,
     };
     let mut graphics = graphics::Context::new(inputs);
 

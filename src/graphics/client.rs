@@ -1,15 +1,17 @@
 use glam::UVec2;
-use wgpu::{Adapter, Device, Queue};
+use wgpu::{Adapter, Device, Features, Queue};
 
 use super::ContextInputs;
 use crate::graphics::resources::COLOR_FORMAT;
 
-/// Stores handlers related to the user environment
+/// Stores handlers related to the user environment and various parameters.
 pub struct Client {
     pub device: Device,
     pub command_queue: Queue,
     pub img_size: UVec2,
     pub multisample_count: u32,
+    pub streamline_batch_size: usize,
+    pub white_mode: bool,
 }
 
 impl Client {
@@ -24,6 +26,8 @@ impl Client {
             command_queue,
             img_size: inputs.dst_img_size,
             multisample_count: max_multisample_count(&adapter),
+            streamline_batch_size: inputs.streamline_batch_size,
+            white_mode: inputs.white_mode,
         }
     }
 }
@@ -39,10 +43,9 @@ fn max_multisample_count(adapter: &Adapter) -> u32 {
 }
 
 async fn device(adapter: &Adapter) -> (Device, Queue) {
-    use wgpu::Features;
-
-    let required_features =
-        Features::POLYGON_MODE_LINE | Features::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES;
+    let required_features = Features::POLYGON_MODE_LINE
+        | Features::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES
+        | Features::ADDRESS_MODE_CLAMP_TO_BORDER;
 
     let desc = &wgpu::DeviceDescriptor {
         label: None,
