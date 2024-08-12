@@ -20,11 +20,9 @@ pub struct Pipelines {
 
 impl Pipelines {
     pub fn new(res: &Resources, client: &Client) -> Self {
-        let streamline = if !res.fibers.is_empty() {
-            Some(create_pipeline(state::streamline(), res, client))
-        } else {
-            None
-        };
+        let streamline =
+            (!res.fibers.is_empty()).then(|| create_pipeline(state::streamline(), res, client));
+
         Self {
             resampling: create_pipeline(state::resampling(), res, client),
             streamline,
