@@ -28,14 +28,15 @@ impl FiberBatch {
 }
 
 pub fn batches(fibers: Reader, client: &Client) -> Vec<FiberBatch> {
-    let mut iter = fibers.into_streamlines_iter().peekable();
-    let mut batches = vec![];
+    let mut iter = fibers.into_streamlines_iter();
 
-    while iter.peek().is_some() {
-        let streamlines = iter.by_ref().take(client.streamline_batch_size).collect();
-        batches.push(FiberBatch::new(streamlines, &client.device));
-    }
-    batches
+    std::iter::from_fn(|| {
+        let streamlines: Vec<Streamline> =
+            iter.by_ref().take(client.streamline_batch_size).collect();
+
+        (!streamlines.is_empty()).then(|| FiberBatch::new(streamlines, &client.device))
+    })
+    .collect()
 }
 
 fn geometry(streamlines: Vec<Streamline>) -> (Vec<FiberVertex>, Vec<u32>) {
