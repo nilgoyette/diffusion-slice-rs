@@ -5,7 +5,7 @@ use trk_io::Reader;
 use wgpu::{BindGroupLayout, Buffer};
 
 use crate::graphics::Client;
-use fibers::FiberResources;
+use fibers::FiberBatch;
 
 pub use texture::{Texture, COLOR_FORMAT, DEPTH_FORMAT};
 
@@ -30,7 +30,7 @@ pub struct Resources {
     pub image_vertices: Buffer,
 
     pub transfer_buffer: Buffer,
-    pub fibers: Option<FiberResources>,
+    pub fibers: Vec<FiberBatch>,
 
     pub transform: Buffer,
 }
@@ -41,15 +41,20 @@ impl Resources {
         let target_texture = Texture::new_target(client);
 
         let mut bind_layouts = vec![("Source".to_string(), bind::layout::source(device))];
-        if fibers.is_some() {
+
+        let fibers = if let Some(fibers) = fibers {
             bind_layouts.push(("Transform".to_string(), bind::layout::transform(device)));
-        }
+            fibers::batches(fibers, client)
+        } else {
+            vec![]
+        };
         Self {
             bind_layouts: bind_layouts.into_iter().collect(),
-            image_vertices: buffer::init_image_vertex_buffer(device),
-            transfer_buffer: buffer::create_transfer_buffer(&target_texture, device),
 
-            fibers: fibers.map(|fibers| FiberResources::new(fibers, device)),
+            image_vertices: buffer::init_image_vertex_buffer(device),
+
+            transfer_buffer: buffer::create_transfer_buffer(&target_texture, device),
+            fibers,
 
             multisampled_texture: Texture::new_multisampled(client),
             depth_texture: Texture::new_depth(client),

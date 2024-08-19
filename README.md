@@ -17,9 +17,9 @@ This is **not** an image viewer (like [MI-Brain](https://github.com/imeka/mi-bra
 
 - [x] Display toy image data and save the result to png
 - [x] Choose the surface dimension
-- [ ] Load actual NIfTI files, using [nifti-rs](https://github.com/Enet4/nifti-rs)
-- [ ] Save several image slices instead of one
-- [ ] Display toy streamlines/fibers, using [trk-io](https://github.com/imeka/trk-io)
+- [x] Load actual NIfTI files, using [nifti-rs](https://github.com/Enet4/nifti-rs)
+- [x] Save several image slices instead of one
+- [x] Display toy streamlines/fibers, using [trk-io](https://github.com/imeka/trk-io)
 - [ ] Load actual TrackVis files
 - [ ] Add various streamlines display options
 

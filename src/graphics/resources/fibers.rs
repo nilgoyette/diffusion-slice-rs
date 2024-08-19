@@ -1,20 +1,22 @@
 use std::ops::Range;
 
 use nalgebra::Vector3;
-use trk_io::Reader;
+use trk_io::{Point, Reader};
 use wgpu::{Buffer, Device};
 
-use super::{buffer, vertex::FiberVertex};
+use super::{buffer, vertex::FiberVertex, Client};
 
-pub struct FiberResources {
+type Streamline = Vec<Point>;
+
+pub struct FiberBatch {
     pub vertices: Buffer,
     pub indices: Buffer,
     pub index_count: u32,
 }
 
-impl FiberResources {
-    pub fn new(fibers: Reader, device: &Device) -> Self {
-        let (vertices, indices) = fiber_geometry(fibers);
+impl FiberBatch {
+    fn new(streamlines: Vec<Streamline>, device: &Device) -> Self {
+        let (vertices, indices) = geometry(streamlines);
         let name = "Fiber";
 
         Self {
@@ -25,12 +27,24 @@ impl FiberResources {
     }
 }
 
-fn fiber_geometry(fibers: Reader) -> (Vec<FiberVertex>, Vec<u32>) {
-    let (mut vertices, ranges) = fiber_vertices(fibers);
+pub fn batches(fibers: Reader, client: &Client) -> Vec<FiberBatch> {
+    let mut iter = fibers.into_streamlines_iter();
+
+    std::iter::from_fn(|| {
+        let streamlines: Vec<Streamline> =
+            iter.by_ref().take(client.streamline_batch_size).collect();
+
+        (!streamlines.is_empty()).then(|| FiberBatch::new(streamlines, &client.device))
+    })
+    .collect()
+}
+
+fn geometry(streamlines: Vec<Streamline>) -> (Vec<FiberVertex>, Vec<u32>) {
+    let (mut vertices, ranges) = vertices(streamlines);
     let mut indices: Vec<u32> = Vec::with_capacity((vertices.len() - ranges.len()) * 2);
 
     for range in ranges {
-        for i in range.start..range.end - 1 {
+        for i in range.start..range.end {
             vertices[i].direction = (vertices[i + 1].position - vertices[i].position).normalize();
             indices.extend([i as u32, i as u32 + 1]);
         }
@@ -40,12 +54,12 @@ fn fiber_geometry(fibers: Reader) -> (Vec<FiberVertex>, Vec<u32>) {
     (vertices, indices)
 }
 
-fn fiber_vertices(fibers: Reader) -> (Vec<FiberVertex>, Vec<Range<usize>>) {
+fn vertices(streamlines: Vec<Streamline>) -> (Vec<FiberVertex>, Vec<Range<usize>>) {
     let mut delimiter = 0;
     let mut ranges = vec![]; // Streamlines ranges
 
-    let vertices: Vec<FiberVertex> = fibers
-        .into_streamlines_iter()
+    let vertices: Vec<FiberVertex> = streamlines
+        .into_iter()
         .flat_map(|streamline| {
             let start = delimiter;
             ranges.push(start..start + streamline.len() - 1);

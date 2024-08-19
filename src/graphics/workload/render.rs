@@ -1,4 +1,4 @@
-use wgpu::{CommandEncoder, Operations};
+use wgpu::{CommandEncoder, Operations, RenderPassDepthStencilAttachment};
 
 use crate::{
     graphics::{
@@ -23,7 +23,7 @@ impl Context {
             pass.draw(0..6, 0..1);
 
             // Streamline
-            if let Some(fibers) = &self.res.fibers {
+            if !self.res.fibers.is_empty() {
                 transform_bind_group = bind::group::transform(self);
                 pass.set_bind_group(0, &transform_bind_group, &[]);
 
@@ -34,9 +34,12 @@ impl Context {
                     .expect("Streamline pipeline is defined alongside fibers resources");
 
                 pass.set_pipeline(pipeline);
-                pass.set_vertex_buffer(0, fibers.vertices.slice(..));
-                pass.set_index_buffer(fibers.indices.slice(..), wgpu::IndexFormat::Uint32);
-                pass.draw_indexed(0..fibers.index_count, 0, 0..1);
+
+                for fiber_batch in &self.res.fibers {
+                    pass.set_vertex_buffer(0, fiber_batch.vertices.slice(..));
+                    pass.set_index_buffer(fiber_batch.indices.slice(..), wgpu::IndexFormat::Uint32);
+                    pass.draw_indexed(0..fiber_batch.index_count, 0, 0..1);
+                }
             }
         }
         // TODO self.post_process()
@@ -45,7 +48,7 @@ impl Context {
 
 fn render_pass<'a>(
     res: &'a Resources,
-    command_encoder: &'a mut wgpu::CommandEncoder,
+    command_encoder: &'a mut CommandEncoder,
 ) -> wgpu::RenderPass<'a> {
     let color_attachment = wgpu::RenderPassColorAttachment {
         view: &res.multisampled_texture.view,
@@ -60,8 +63,8 @@ fn render_pass<'a>(
     })
 }
 
-fn depth_attachment(texture: &Texture) -> wgpu::RenderPassDepthStencilAttachment {
-    wgpu::RenderPassDepthStencilAttachment {
+fn depth_attachment(texture: &Texture) -> RenderPassDepthStencilAttachment {
+    RenderPassDepthStencilAttachment {
         view: &texture.view,
         depth_ops: Some(Operations {
             load: wgpu::LoadOp::Clear(1.),

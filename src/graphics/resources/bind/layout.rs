@@ -1,4 +1,7 @@
-use wgpu::{BindGroupLayout, BindingType, Device, ShaderStages};
+use wgpu::{
+    BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, Device,
+    ShaderStages,
+};
 
 struct LayoutEntry {
     stage: ShaderStages,
@@ -36,8 +39,6 @@ pub fn transform(device: &Device) -> BindGroupLayout {
 }
 
 fn create_layout(name: &str, entries: &[LayoutEntry], device: &Device) -> BindGroupLayout {
-    use wgpu::{BindGroupLayoutDescriptor, BindGroupLayoutEntry};
-
     let entry = |(i, entry): (usize, &LayoutEntry)| BindGroupLayoutEntry {
         binding: i as u32,
         visibility: entry.stage,
