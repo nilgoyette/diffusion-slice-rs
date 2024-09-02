@@ -1,6 +1,4 @@
-use wgpu::{
-    AddressMode, BindGroup, BindGroupEntry, BindingResource, FilterMode, SamplerBorderColor,
-};
+use wgpu::{AddressMode, BindGroup, BindGroupEntry, BindingResource, FilterMode};
 
 use crate::{
     graphics::{resources::Texture, Client, Context},
@@ -24,17 +22,11 @@ pub fn transform(ctx: &Context) -> BindGroup {
 }
 
 fn create_sampler(client: &Client) -> wgpu::Sampler {
-    let border_color = if client.white_mode {
-        SamplerBorderColor::OpaqueWhite
-    } else {
-        SamplerBorderColor::OpaqueBlack
-    };
     client.device.create_sampler(&wgpu::SamplerDescriptor {
-        address_mode_u: AddressMode::ClampToBorder,
-        address_mode_v: AddressMode::ClampToBorder,
+        address_mode_u: AddressMode::ClampToEdge,
+        address_mode_v: AddressMode::ClampToEdge,
         mag_filter: FilterMode::Linear,
         min_filter: FilterMode::Linear,
-        border_color: Some(border_color),
         ..Default::default()
     })
 }

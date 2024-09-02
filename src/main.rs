@@ -64,8 +64,6 @@ fn main() {
     let size_3d = get_dim(&nifti_header);
     let slicer = Slicer::from_3d(nifti_header, data, 3, &args.views, (0.3, 0.7));
 
-    println!("{:?}", size_3d);
-
     let inputs = ContextInputs {
         fibers_reader,
         size_3d,

@@ -1,5 +1,5 @@
 use bytemuck::Pod;
-use glam::{vec2, vec3, Mat3, Mat4, Vec2, Vec3};
+use glam::{vec2, Mat3, Mat4, Vec2, Vec3};
 use wgpu::{Buffer, CommandEncoder};
 
 use crate::graphics::{resources::quad_vertices, Context, Image, Slice};
@@ -67,7 +67,7 @@ impl Context {
 /// Calculates the scaling factor with respect to
 /// the aspect ratio and uniformity across the three axes.
 fn scale(dst_size: Vec2, size_3d: Vec3) -> f32 {
-    let max_size = vec2(size_3d.x, size_3d.y).max(vec2(size_3d.z, size_3d.z));
+    let max_size = vec2(size_3d.x, size_3d.z).max(vec2(size_3d.y, size_3d.y));
     (dst_size / max_size).min_element()
 }
 

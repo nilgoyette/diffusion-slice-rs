@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use glam::{swizzles::Vec3Swizzles, vec2, vec3, Mat3, Mat4, Vec2};
+use glam::{vec2, Mat3, Mat4, Vec2};
 use trk_io::Reader;
 use wgpu::{BindGroupLayout, Buffer};
 
@@ -68,7 +68,7 @@ impl Resources {
 
 pub fn quad_vertices(src_size: Vec2, transform: Mat3) -> [ImageVertex; 6] {
     let vertex = |x, y, u, v| ImageVertex {
-        canon: (transform * vec3(x * src_size.x, y * src_size.y, 1.)).xy(),
+        canon: transform.transform_point2(vec2(x * src_size.x, y * src_size.y)),
         uv: vec2(u, v),
     };
     [

@@ -1,4 +1,4 @@
-use wgpu::{CommandEncoder, Operations, RenderPassDepthStencilAttachment};
+use wgpu::{Color, CommandEncoder, Operations, RenderPassDepthStencilAttachment};
 
 use crate::{
     graphics::{
@@ -13,7 +13,7 @@ impl Context {
         let source_bind_group = bind::group::source(image, self);
         let transform_bind_group;
         {
-            let mut pass = render_pass(&self.res, command_encoder);
+            let mut pass = render_pass(&self.res, self.client.white_mode, command_encoder);
 
             // Resampling
             pass.set_bind_group(0, &source_bind_group, &[]);
@@ -48,12 +48,18 @@ impl Context {
 
 fn render_pass<'a>(
     res: &'a Resources,
+    white_mode: bool,
     command_encoder: &'a mut CommandEncoder,
 ) -> wgpu::RenderPass<'a> {
+    let clear_color = if white_mode {
+        Color::WHITE
+    } else {
+        Color::BLACK
+    };
     let color_attachment = wgpu::RenderPassColorAttachment {
         view: &res.multisampled_texture.view,
         resolve_target: Some(&res.target_texture.view),
-        ops: clear(wgpu::Color::WHITE),
+        ops: clear(clear_color),
     };
     command_encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
         label: label!("RenderPass"),
