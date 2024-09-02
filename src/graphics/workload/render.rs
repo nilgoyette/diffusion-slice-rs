@@ -53,7 +53,7 @@ fn render_pass<'a>(
     let color_attachment = wgpu::RenderPassColorAttachment {
         view: &res.multisampled_texture.view,
         resolve_target: Some(&res.target_texture.view),
-        ops: clear(wgpu::Color::BLACK),
+        ops: clear(wgpu::Color::WHITE),
     };
     command_encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
         label: label!("RenderPass"),

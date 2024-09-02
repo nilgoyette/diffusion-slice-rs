@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
-use glam::Mat4;
+use glam::{swizzles::Vec3Swizzles, vec2, vec3, Mat3, Mat4, Vec2};
 use trk_io::Reader;
 use wgpu::{BindGroupLayout, Buffer};
 
 use crate::graphics::Client;
 use fibers::FiberBatch;
+use vertex::ImageVertex;
 
 pub use texture::{Texture, COLOR_FORMAT, DEPTH_FORMAT};
 
@@ -63,4 +64,19 @@ impl Resources {
             transform: buffer::create_transform(Mat4::IDENTITY, device),
         }
     }
+}
+
+pub fn quad_vertices(src_size: Vec2, transform: Mat3) -> [ImageVertex; 6] {
+    let vertex = |x, y, u, v| ImageVertex {
+        canon: (transform * vec3(x * src_size.x, y * src_size.y, 1.)).xy(),
+        uv: vec2(u, v),
+    };
+    [
+        vertex(1., 1., 0., 1.),
+        vertex(1., 0., 0., 0.),
+        vertex(0., 0., 1., 0.),
+        vertex(1., 1., 0., 1.),
+        vertex(0., 0., 1., 0.),
+        vertex(0., 1., 1., 1.),
+    ]
 }

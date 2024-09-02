@@ -22,7 +22,7 @@ where
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, Pod, Zeroable)]
+#[derive(Copy, Clone, Pod, Zeroable, Debug)]
 pub struct ImageVertex {
     pub canon: Vec2,
     pub uv: Vec2,

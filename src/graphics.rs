@@ -1,4 +1,4 @@
-use crate::{ContextInputs, Image, ImageSlice};
+use crate::{slicer::Slice, ContextInputs, Image};
 use {client::Client, pipeline::Pipelines, resources::Resources};
 
 #[macro_use]
@@ -27,7 +27,7 @@ impl Context {
         }
     }
 
-    pub fn process_slice(&mut self, image: &ImageSlice) -> Image {
-        self.execute_workloads(image)
+    pub fn process_slice(&mut self, slice: &Slice) -> Image {
+        self.execute_workloads(slice)
     }
 }

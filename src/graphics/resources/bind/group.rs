@@ -2,7 +2,10 @@ use wgpu::{
     AddressMode, BindGroup, BindGroupEntry, BindingResource, FilterMode, SamplerBorderColor,
 };
 
-use crate::graphics::{resources::Texture, Client, Context, ImageSlice};
+use crate::{
+    graphics::{resources::Texture, Client, Context},
+    ImageSlice,
+};
 
 pub fn source(image: &ImageSlice, ctx: &Context) -> BindGroup {
     let sampler = create_sampler(&ctx.client);
