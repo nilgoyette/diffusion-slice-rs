@@ -1,4 +1,4 @@
-use glam::{UVec2, UVec3};
+use glam::UVec2;
 use wgpu::{Adapter, Device, Features, Queue};
 
 use super::ContextInputs;
@@ -9,10 +9,8 @@ pub struct Client {
     pub device: Device,
     pub command_queue: Queue,
     pub img_size: UVec2,
-    pub size_3d: UVec3,
     pub multisample_count: u32,
     pub streamline_batch_size: usize,
-    pub white_mode: bool,
 }
 
 impl Client {
@@ -26,10 +24,8 @@ impl Client {
             device,
             command_queue,
             img_size: inputs.dst_img_size,
-            size_3d: inputs.size_3d,
             multisample_count: max_multisample_count(&adapter),
             streamline_batch_size: inputs.streamline_batch_size,
-            white_mode: inputs.white_mode,
         }
     }
 }

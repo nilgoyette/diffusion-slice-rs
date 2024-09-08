@@ -1,5 +1,5 @@
 use bytemuck::Pod;
-use glam::{Mat3, Mat4, Vec2};
+use glam::{Mat3, Mat4};
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     Buffer, BufferUsages, Device,
@@ -10,7 +10,7 @@ use crate::graphics::resources::{quad_vertices, Texture};
 pub fn init_image_vertex_buffer(device: &Device) -> Buffer {
     device.create_buffer_init(&BufferInitDescriptor {
         label: label!("ImageVertexBuffer"),
-        contents: bytemuck::cast_slice(&quad_vertices(Vec2::ZERO, Mat3::ZERO)),
+        contents: bytemuck::cast_slice(&quad_vertices(Mat3::ZERO)),
         usage: BufferUsages::VERTEX | BufferUsages::COPY_DST,
     })
 }
