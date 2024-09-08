@@ -1,7 +1,7 @@
 use std::{path::PathBuf, time::Instant};
 
 use clap::Parser;
-use glam::{uvec2, UVec2, UVec3};
+use glam::{uvec2, uvec3, UVec2, UVec3};
 use nifti::NiftiHeader;
 use trk_io::Reader;
 
@@ -90,8 +90,10 @@ fn get_dim(nifti_header: &NiftiHeader) -> UVec3 {
         .dim()
         .expect("The NIfTI must have consistent dimensions");
 
-    let dim: Vec<u32> = dim.iter().map(|&d| d as u32).collect();
-    UVec3::from_array(dim.try_into().expect("A 3D image is expected."))
+    if dim.len() != 3 {
+        panic!("A 3D image is expected.")
+    }
+    uvec3(dim[0] as u32, dim[1] as u32, dim[2] as u32)
 }
 
 fn init_logger() {

@@ -43,12 +43,10 @@ impl Context {
     }
 
     fn slice_transform(&self, slice: &Slice) -> Mat3 {
-        let dst_size = self.client.img_size.as_vec2();
+        let screen_space_scale =
+            self.parameters.fit_scale * slice.size().as_vec2() / self.client.img_size.as_vec2();
 
-        let screen_space_transform =
-            Mat3::from_scale(self.parameters.fit_scale * slice.size().as_vec2() / dst_size);
-
-        slice.view.orientation() * screen_space_transform
+        slice.view.orientation() * Mat3::from_scale(screen_space_scale)
     }
 
     fn write<T: Pod>(&self, buffer: &Buffer, data: T) {
