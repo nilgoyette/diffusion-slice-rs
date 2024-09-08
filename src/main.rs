@@ -1,7 +1,8 @@
 use std::{path::PathBuf, time::Instant};
 
 use clap::Parser;
-use glam::{uvec2, UVec2};
+use glam::{uvec2, uvec3, UVec2, UVec3};
+use nifti::NiftiHeader;
 use trk_io::Reader;
 
 use file::{fibers_reader, read_3d_image};
@@ -45,6 +46,7 @@ struct Args {
 
 pub struct ContextInputs {
     pub fibers_reader: Option<Reader>,
+    pub size_3d: UVec3,
     pub dst_img_size: UVec2,
     pub streamline_batch_size: usize,
     pub white_mode: bool,
@@ -59,10 +61,12 @@ fn main() {
     let (nifti_header, data) = read_3d_image::<_, f32>(args.input_image);
     let fibers_reader = args.fibers.map(|path| fibers_reader(path, &nifti_header));
 
+    let size_3d = get_dim(&nifti_header);
     let slicer = Slicer::from_3d(nifti_header, data, 3, &args.views, (0.3, 0.7));
 
     let inputs = ContextInputs {
         fibers_reader,
+        size_3d,
         dst_img_size: uvec2(args.output_size[0], args.output_size[1]),
         streamline_batch_size: args.batch_size,
         white_mode: args.white,
@@ -70,7 +74,7 @@ fn main() {
     let mut graphics = graphics::Context::new(inputs);
 
     for slice in slicer.slices {
-        let image = graphics.process_slice(&slice.data);
+        let image = graphics.process_slice(&slice);
 
         // TODO Support a prefix, like "prefix{}_{}.png"
         let mut write_to = args.output.clone();
@@ -79,6 +83,17 @@ fn main() {
     }
 
     log::info!("Program duration: {:?}", start.elapsed());
+}
+
+fn get_dim(nifti_header: &NiftiHeader) -> UVec3 {
+    let dim: &[u16] = nifti_header
+        .dim()
+        .expect("The NIfTI must have consistent dimensions");
+
+    if dim.len() != 3 {
+        panic!("A 3D image is expected.")
+    }
+    uvec3(dim[0] as u32, dim[1] as u32, dim[2] as u32)
 }
 
 fn init_logger() {

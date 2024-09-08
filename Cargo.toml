@@ -7,7 +7,7 @@ edition = "2021"
 bytemuck = { version = "1.16", features = ["derive"] } # Raw data manipulations
 clap = { version = "4.5.8", features = ["derive"] }
 env_logger = "0.11" # Logging client
-glam = { version = "0.27", features = ["bytemuck"] } # Fast math types
+glam = { version = "0.29", features = ["bytemuck"] } # Fast math types
 image = "0.25" # Image encoders/decoders 
 log = "0.4" # Logging API
 nalgebra = { version = "0.32", features = ["bytemuck"] } # Math types of trk-io

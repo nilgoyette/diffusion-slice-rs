@@ -1,5 +1,9 @@
-use std::str::FromStr;
+use std::{
+    f32::consts::{FRAC_PI_2, PI},
+    str::FromStr,
+};
 
+use glam::{uvec2, vec2, Mat3, Mat4, UVec2};
 use ndarray::{Array2, Array3, ShapeBuilder};
 use nifti::NiftiHeader;
 
@@ -16,11 +20,32 @@ pub enum Axis {
 #[derive(Copy, Clone, Debug, clap::ValueEnum)]
 pub enum View {
     Left,
-    Right, // TODO Switch camera
+    Right,
     Anterior,
-    Posterior, // TODO Switch camera
+    Posterior,
     Superior,
-    Inferior, // TODO Switch camera
+    Inferior,
+}
+
+impl View {
+    pub fn rotation(&self) -> Mat4 {
+        match self {
+            View::Left => Mat4::from_rotation_y(FRAC_PI_2) * Mat4::from_rotation_x(-FRAC_PI_2),
+            View::Right => Mat4::from_rotation_y(-FRAC_PI_2) * Mat4::from_rotation_x(-FRAC_PI_2),
+            View::Anterior => Mat4::from_rotation_z(PI) * Mat4::from_rotation_x(FRAC_PI_2),
+            View::Posterior => Mat4::from_rotation_x(-FRAC_PI_2),
+            View::Superior => Mat4::IDENTITY,
+            View::Inferior => Mat4::from_rotation_y(PI),
+        }
+    }
+
+    pub fn orientation(&self) -> Mat3 {
+        let x = match self {
+            View::Left | View::Anterior | View::Inferior => 1.,
+            View::Right | View::Posterior | View::Superior => -1.,
+        };
+        Mat3::from_scale(vec2(x, 1.))
+    }
 }
 
 impl FromStr for View {
@@ -65,6 +90,13 @@ pub struct Slice {
     pub view: View,
     pub index: usize,
     pub _depth: f32,
+}
+
+impl Slice {
+    pub fn size(&self) -> UVec2 {
+        let (width, height) = self.data.dim();
+        uvec2(width as u32, height as u32)
+    }
 }
 
 pub struct Slicer {

@@ -1,7 +1,7 @@
 use glam::UVec2;
 use wgpu::{Extent3d, ImageCopyTexture, ImageDataLayout, Queue, TextureFormat, TextureUsages};
 
-use crate::graphics::{Client, ImageSlice};
+use crate::{graphics::Client, ImageSlice};
 
 pub const GRAY_FORMAT: TextureFormat = TextureFormat::R8Unorm;
 pub const COLOR_FORMAT: TextureFormat = TextureFormat::Rgba8Unorm;
