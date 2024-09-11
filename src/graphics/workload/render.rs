@@ -13,7 +13,7 @@ impl Context {
         let source_bind_group = bind::group::source(image, self);
         let transform_bind_group;
         {
-            let mut pass = render_pass(&self.res, self.parameters.white_mode, command_encoder);
+            let mut pass = render_pass(&self.res, self.client.white_mode, command_encoder);
 
             // Resampling
             pass.set_bind_group(0, &source_bind_group, &[]);

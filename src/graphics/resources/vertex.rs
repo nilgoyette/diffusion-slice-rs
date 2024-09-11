@@ -39,7 +39,7 @@ impl Vertex for ImageVertex {
 #[derive(Copy, Clone, Pod, Zeroable)]
 pub struct FiberVertex {
     pub position: Point3<f32>,
-    pub direction: Vector3<f32>,
+    pub color: Vector3<f32>,
 }
 
 impl Vertex for FiberVertex {

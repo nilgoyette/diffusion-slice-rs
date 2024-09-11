@@ -6,7 +6,6 @@ pub struct Parameters {
     pub fit_scale: f32,
     pub tractogram_alignment: Mat4,
     pub tractogram_projection: Mat4,
-    pub white_mode: bool,
 }
 
 impl Parameters {
@@ -18,7 +17,6 @@ impl Parameters {
             fit_scale,
             tractogram_projection: tractogram_projection(dst_size, fit_scale * size_3d),
             tractogram_alignment: tractogram_alignment(fit_scale, size_3d),
-            white_mode: inputs.white_mode,
         }
     }
 }

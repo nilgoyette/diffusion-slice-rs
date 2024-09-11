@@ -2,9 +2,9 @@ use std::ops::Range;
 
 use nalgebra::Vector3;
 use trk_io::{Point, Reader};
-use wgpu::{Buffer, Device};
+use wgpu::Buffer;
 
-use super::{buffer, vertex::FiberVertex, Client};
+use super::{buffer, vertex::FiberVertex, Client, Coloring};
 
 type Streamline = Vec<Point>;
 
@@ -15,13 +15,14 @@ pub struct FiberBatch {
 }
 
 impl FiberBatch {
-    fn new(streamlines: Vec<Streamline>, device: &Device) -> Self {
-        let (vertices, indices) = geometry(streamlines);
+    fn new(streamlines: Vec<Streamline>, client: &Client) -> Self {
+        let (vertices, indices) = geometry(streamlines, &client.coloring);
+
         let name = "Fiber";
 
         Self {
-            vertices: buffer::init_vertices(name, &vertices, device),
-            indices: buffer::init_indices(name, &indices, device),
+            vertices: buffer::init_vertices(name, &vertices, &client.device),
+            indices: buffer::init_indices(name, &indices, &client.device),
             index_count: indices.len() as u32,
         }
     }
@@ -34,24 +35,16 @@ pub fn batches(fibers: Reader, client: &Client) -> Vec<FiberBatch> {
         let streamlines: Vec<Streamline> =
             iter.by_ref().take(client.streamline_batch_size).collect();
 
-        (!streamlines.is_empty()).then(|| FiberBatch::new(streamlines, &client.device))
+        (!streamlines.is_empty()).then(|| FiberBatch::new(streamlines, client))
     })
     .collect()
 }
 
-fn geometry(streamlines: Vec<Streamline>) -> (Vec<FiberVertex>, Vec<u32>) {
+fn geometry(streamlines: Vec<Streamline>, coloring: &Coloring) -> (Vec<FiberVertex>, Vec<u32>) {
     let (mut vertices, ranges) = vertices(streamlines);
-    let mut indices: Vec<u32> = Vec::with_capacity((vertices.len() - ranges.len()) * 2);
+    coloring.assign_vertex_colors(&mut vertices, &ranges);
 
-    for range in ranges {
-        for i in range.start..range.end {
-            vertices[i].direction = (vertices[i + 1].position - vertices[i].position).normalize();
-            indices.extend([i as u32, i as u32 + 1]);
-        }
-        // Last point of the streamline uses the previous direction.
-        vertices[range.end].direction = vertices[range.end - 1].direction;
-    }
-    (vertices, indices)
+    (vertices, indices(&ranges))
 }
 
 fn vertices(streamlines: Vec<Streamline>) -> (Vec<FiberVertex>, Vec<Range<usize>>) {
@@ -67,10 +60,18 @@ fn vertices(streamlines: Vec<Streamline>) -> (Vec<FiberVertex>, Vec<Range<usize>
 
             streamline.into_iter().map(|point| FiberVertex {
                 position: point,
-                direction: Vector3::default(), // Calculated later
+                color: Vector3::default(), // Calculated later
             })
         })
         .collect();
 
     (vertices, ranges)
+}
+
+fn indices(ranges: &[Range<usize>]) -> Vec<u32> {
+    ranges
+        .iter()
+        .cloned()
+        .flat_map(|range| range.flat_map(|i| vec![i as u32, i as u32 + 1]))
+        .collect()
 }
