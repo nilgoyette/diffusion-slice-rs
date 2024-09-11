@@ -14,7 +14,7 @@ struct FragmentInput {
 fn vertex(in: VertexInput) -> FragmentInput {
     return FragmentInput(
         transform * vec4<f32>(in.position, 1.),
-        abs(in.direction)
+        in.direction
     );
 }
 
