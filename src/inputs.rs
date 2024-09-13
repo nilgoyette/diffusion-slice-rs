@@ -77,7 +77,7 @@ impl ContextInputs {
         let fibers_reader = args
             .fibers
             .as_ref()
-            .map(|path| fibers_reader(path, &nifti_header));
+            .map(|path| fibers_reader(path, nifti_header));
 
         let coloring = match args.coloring {
             ColoringInput::Local => Coloring::Local,
@@ -88,7 +88,7 @@ impl ContextInputs {
         };
         ContextInputs {
             fibers_reader,
-            size_3d: get_dim(&nifti_header),
+            size_3d: get_dim(nifti_header),
             dst_img_size: uvec2(args.output_size[0], args.output_size[1]),
             streamline_batch_size: args.batch_size,
             white_mode: args.white,

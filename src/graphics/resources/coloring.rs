@@ -37,8 +37,8 @@ impl Coloring {
             let (first, last) = (&vertices[range.start], &vertices[range.end]);
             let color = (first.position - last.position).normalize().abs();
 
-            for i in range.start..=range.end {
-                vertices[i].color = color
+            for vertex in &mut vertices[range.start..=range.end] {
+                vertex.color = color
             }
         }
     }
