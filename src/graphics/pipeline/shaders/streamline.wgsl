@@ -2,7 +2,7 @@
 
 struct VertexInput {
     @location(0) position: vec3<f32>,
-    @location(1) direction: vec3<f32>,
+    @location(1) color: vec3<f32>,
 };
 
 struct FragmentInput {
@@ -14,7 +14,7 @@ struct FragmentInput {
 fn vertex(in: VertexInput) -> FragmentInput {
     return FragmentInput(
         transform * vec4<f32>(in.position, 1.),
-        abs(in.direction)
+        in.color
     );
 }
 

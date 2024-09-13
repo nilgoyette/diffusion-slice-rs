@@ -10,6 +10,8 @@ mod pipeline;
 mod resources;
 mod workload;
 
+pub use resources::Coloring;
+
 pub struct Context {
     client: Client,
     parameters: Parameters,

@@ -2,7 +2,7 @@ use glam::UVec2;
 use wgpu::{Adapter, Device, Features, Queue};
 
 use super::ContextInputs;
-use crate::graphics::resources::COLOR_FORMAT;
+use crate::graphics::resources::{Coloring, COLOR_FORMAT};
 
 /// Stores handlers related to the user environment and various parameters.
 pub struct Client {
@@ -11,6 +11,8 @@ pub struct Client {
     pub img_size: UVec2,
     pub multisample_count: u32,
     pub streamline_batch_size: usize,
+    pub white_mode: bool,
+    pub coloring: Coloring,
 }
 
 impl Client {
@@ -26,6 +28,8 @@ impl Client {
             img_size: inputs.dst_img_size,
             multisample_count: max_multisample_count(&adapter),
             streamline_batch_size: inputs.streamline_batch_size,
+            white_mode: inputs.white_mode,
+            coloring: inputs.coloring,
         }
     }
 }

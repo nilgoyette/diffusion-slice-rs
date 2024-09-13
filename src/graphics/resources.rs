@@ -8,13 +8,17 @@ use crate::graphics::Client;
 use fibers::FiberBatch;
 use vertex::ImageVertex;
 
-pub use texture::{Texture, COLOR_FORMAT, DEPTH_FORMAT};
+pub use {
+    coloring::Coloring,
+    texture::{Texture, COLOR_FORMAT, DEPTH_FORMAT},
+};
 
 pub mod bind {
     pub mod group;
     pub(super) mod layout;
 }
 mod buffer;
+mod coloring;
 mod fibers;
 mod texture;
 pub mod vertex;
