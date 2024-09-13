@@ -14,13 +14,13 @@ pub enum Coloring {
 impl Coloring {
     pub fn assign_vertex_colors(&self, vertices: &mut [FiberVertex], ranges: &[Range<usize>]) {
         match self {
-            Coloring::Local => Self::assign_local_color(vertices, ranges),
+            Coloring::Local => Self::assign_local(vertices, ranges),
             Coloring::Endpoint => Self::assign_endpoint(vertices, ranges),
             Coloring::Uniform(color) => Self::assign_uniform(vertices, *color),
         }
     }
 
-    fn assign_local_color(vertices: &mut [FiberVertex], ranges: &[Range<usize>]) {
+    fn assign_local(vertices: &mut [FiberVertex], ranges: &[Range<usize>]) {
         for range in ranges {
             for i in range.start..range.end {
                 vertices[i].color = (vertices[i + 1].position - vertices[i].position)
