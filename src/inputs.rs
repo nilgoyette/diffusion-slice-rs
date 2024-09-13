@@ -18,7 +18,7 @@ pub struct Args {
     #[arg(short, long, default_value = "false")]
     pub white: bool,
 
-    /// Output folder to save all png
+    /// Input TrackVis file
     #[arg(short, long)]
     pub fibers: Option<PathBuf>,
 
@@ -27,13 +27,14 @@ pub struct Args {
     pub batch_size: usize,
 
     /// Color mode for the fibers
-    #[arg(long, default_value = "local", requires("fibers"))]
+    #[arg(short, long, default_value = "local", requires("fibers"))]
     pub coloring: ColoringInput,
 
     /// RGB Color used by the uniform coloring mode
     #[arg(
         num_args(3),
         long,
+        requires("coloring"),
         required_if_eq("coloring", "uniform"),
         value_names = &["R", "G", "B"]
     )]
