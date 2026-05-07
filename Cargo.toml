@@ -4,15 +4,23 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bytemuck = { version = "1.16", features = ["derive"] } # Raw data manipulations
+# Raw data manipulations
+bytemuck = { version = "1.16", features = ["derive"] }
 clap = { version = "4.5.8", features = ["derive"] }
-env_logger = "0.11" # Logging client
-glam = { version = "0.29", features = ["bytemuck"] } # Fast math types
-image = "0.25" # Image encoders/decoders 
-log = "0.4" # Logging API
-nalgebra = { version = "0.32", features = ["bytemuck"] } # Math types of trk-io
-ndarray = "0.15"
-nifti = { version = "0.16", features = ["ndarray_volumes", "nalgebra_affine"] }
-pollster = "0.3" # Async runtime
-trk-io = { version = "0.28", features = ["nifti_images"]}
-wgpu = "0.20" # GPU API
+# Logging client
+env_logger = "0.11"
+# Fast math types
+glam = { version = "0.32", features = ["bytemuck"] }
+# Image encoders/decoders 
+image = "0.25"
+# Logging API
+log = "0.4"
+# Math types of trk-io
+nalgebra = { version = "0.33", features = ["bytemuck"] }
+ndarray = "0.16"
+nifti = { version = "0.17", features = ["ndarray_volumes", "nalgebra_affine"] }
+# Async runtime
+pollster = "0.4"
+trk-io = { version = "0.31", features = ["nifti_images"] }
+# GPU API
+wgpu = "29"

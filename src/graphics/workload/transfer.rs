@@ -6,7 +6,7 @@ impl Context {
     pub(super) fn copy_target_to_buffer(&self, command_encoder: &mut CommandEncoder) {
         let texture = &self.res.target_texture;
 
-        let copy_buffer = wgpu::ImageCopyBuffer {
+        let copy_buffer = wgpu::TexelCopyBufferInfo {
             buffer: &self.res.transfer_buffer,
             layout: texture.data_layout(),
         };
@@ -24,7 +24,13 @@ impl Context {
         data.map_async(wgpu::MapMode::Read, |result| {
             result.expect("The buffer can be mapped")
         });
-        self.client.device.poll(wgpu::Maintain::Wait); // Synchronization
+        self.client
+            .device
+            .poll(wgpu::PollType::Wait {
+                submission_index: None,
+                timeout: Some(std::time::Duration::from_secs(60)),
+            })
+            .unwrap(); // Synchronization
 
         let texture = &self.res.target_texture;
         let bytes_width = (texture.bytes_stride - texture.bytes_padding) as usize;

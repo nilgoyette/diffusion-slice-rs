@@ -58,6 +58,7 @@ fn render_pass<'a>(
     };
     let color_attachment = wgpu::RenderPassColorAttachment {
         view: &res.multisampled_texture.view,
+        depth_slice: None,
         resolve_target: Some(&res.target_texture.view),
         ops: clear(clear_color),
     };
@@ -69,7 +70,7 @@ fn render_pass<'a>(
     })
 }
 
-fn depth_attachment(texture: &Texture) -> RenderPassDepthStencilAttachment {
+fn depth_attachment(texture: &Texture) -> RenderPassDepthStencilAttachment<'_> {
     RenderPassDepthStencilAttachment {
         view: &texture.view,
         depth_ops: Some(Operations {

@@ -17,7 +17,7 @@ pub struct Client {
 
 impl Client {
     pub async fn new(inputs: &ContextInputs) -> Self {
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle());
         let adapter = adapter(&instance).await;
 
         let (device, command_queue) = device(&adapter).await;
@@ -52,9 +52,11 @@ async fn device(adapter: &Adapter) -> (Device, Queue) {
         label: None,
         required_features,
         required_limits: wgpu::Limits::default(),
+        memory_hints: wgpu::MemoryHints::Performance,
+        trace: wgpu::Trace::Off, // Tracing is disabled
+        experimental_features: wgpu::ExperimentalFeatures::default(),
     };
-    // Tracing is disabled
-    adapter.request_device(desc, None).await.unwrap()
+    adapter.request_device(desc).await.unwrap()
 }
 
 async fn adapter(instance: &wgpu::Instance) -> Adapter {

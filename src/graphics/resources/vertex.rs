@@ -9,7 +9,7 @@ pub trait Vertex
 where
     Self: Sized + Copy + Clone + Pod + Zeroable,
 {
-    fn buffer_layout(attributes: &[VertexAttribute]) -> VertexBufferLayout {
+    fn buffer_layout(attributes: &[VertexAttribute]) -> VertexBufferLayout<'_> {
         VertexBufferLayout {
             array_stride: size_of::<Self>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,

@@ -24,7 +24,7 @@ fn main() {
     let inputs = ContextInputs::new(&args, &nifti_header);
     let mut graphics = graphics::Context::new(inputs);
 
-    let slicer = Slicer::from_3d(nifti_header, data, 3, &args.views, (0.3, 0.7));
+    let slicer = Slicer::from_3d(nifti_header, data, 8, &args.views, (0.33, 0.66));
 
     for slice in slicer.slices {
         let image = graphics.process_slice(&slice);
