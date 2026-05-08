@@ -41,13 +41,13 @@ fn create_pipeline<V: Vertex>(
 
     let vertex_state = wgpu::VertexState {
         module,
-        entry_point: "vertex",
+        entry_point: Some("vertex"),
         buffers: &[V::buffer_layout(&vertex_attributes)],
         compilation_options: Default::default(),
     };
     let fragment_state = wgpu::FragmentState {
         module,
-        entry_point: "fragment",
+        entry_point: Some("fragment"),
         targets: &[Some(color_target())],
         compilation_options: Default::default(),
     };
@@ -59,7 +59,8 @@ fn create_pipeline<V: Vertex>(
         primitive: state.primitive,
         depth_stencil: Some(depth_stencil(state.use_depth_test)),
         multisample: multisample(client.multisample_count),
-        multiview: None,
+        multiview_mask: None,
+        cache: None,
     })
 }
 
@@ -76,15 +77,15 @@ fn layout(
     res: &Resources,
     device: &Device,
 ) -> wgpu::PipelineLayout {
-    let bind_group_layouts: &Vec<&BindGroupLayout> = &bind_layouts
+    let bind_group_layouts: &Vec<Option<&BindGroupLayout>> = &bind_layouts
         .into_iter()
-        .map(|id| &res.bind_layouts[id])
+        .map(|id| Some(&res.bind_layouts[id]))
         .collect();
 
     device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: label!("{}PipelineLayout", name),
         bind_group_layouts,
-        push_constant_ranges: &[],
+        immediate_size: 0,
     })
 }
 
@@ -98,13 +99,13 @@ fn color_target() -> ColorTargetState {
 
 fn depth_stencil(active: bool) -> DepthStencilState {
     let depth_compare = if active {
-        CompareFunction::LessEqual
+        Some(CompareFunction::LessEqual)
     } else {
-        CompareFunction::Always
+        Some(CompareFunction::Always)
     };
     DepthStencilState {
         format: DEPTH_FORMAT,
-        depth_write_enabled: active,
+        depth_write_enabled: Some(active),
         depth_compare,
         stencil: wgpu::StencilState::default(),
         bias: wgpu::DepthBiasState::default(),

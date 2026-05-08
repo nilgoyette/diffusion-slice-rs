@@ -1,5 +1,7 @@
 use glam::UVec2;
-use wgpu::{Extent3d, ImageCopyTexture, ImageDataLayout, Queue, TextureFormat, TextureUsages};
+use wgpu::{
+    Extent3d, Queue, TexelCopyBufferLayout, TexelCopyTextureInfo, TextureFormat, TextureUsages,
+};
 
 use crate::{graphics::Client, ImageSlice};
 
@@ -101,8 +103,8 @@ impl Texture {
         );
     }
 
-    pub fn image_copy(&self) -> ImageCopyTexture {
-        ImageCopyTexture {
+    pub fn image_copy(&self) -> TexelCopyTextureInfo<'_> {
+        TexelCopyTextureInfo {
             texture: &self.inner,
             mip_level: 0,
             origin: wgpu::Origin3d::ZERO,
@@ -110,8 +112,8 @@ impl Texture {
         }
     }
 
-    pub fn data_layout(&self) -> ImageDataLayout {
-        ImageDataLayout {
+    pub fn data_layout(&self) -> TexelCopyBufferLayout {
+        TexelCopyBufferLayout {
             offset: 0,
             bytes_per_row: Some(self.bytes_stride),
             rows_per_image: None,
